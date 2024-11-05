@@ -19,25 +19,27 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="users")
-@Getter @Setter
+@Table(name = "users")
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserSec {
-  @Id
-  @GeneratedValue(strategy= GenerationType.IDENTITY)
-  private Long id;
-  private String username;
-  private String password;
-  private boolean enabled;
-  private boolean accountNotExpired;
-  private boolean accountNotLocked;
-  private boolean credentialNotExpired;
-  
-  //Usamos Set porque no permite repetidos
-  //List permite repetidos
-  @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL) //el eager va a cargar todos los roles
-  @JoinTable (name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), 
-  inverseJoinColumns = @JoinColumn(name = "role_id"))
-  private Set rolesList = new HashSet<>();
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    private String username;
+    private String password;
+    private boolean enabled;
+    private boolean accountNotExpired;
+    private boolean accountNotLocked;
+    private boolean credentialNotExpired;
+
+    // Definir rolesList como Set<Role> para usar generics
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL) // El eager va a cargar todos los roles
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"),
+               inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> rolesList = new HashSet<>(); // Cambia aquí a Set<Role>
 }
+
