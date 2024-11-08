@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.backendLogin.backendLogin.model.Role;
 import com.backendLogin.backendLogin.model.UserSec;
 import com.backendLogin.backendLogin.service.IRoleService;
 import com.backendLogin.backendLogin.service.IUserService;
-
+@RestController
+@RequestMapping("/api/users")
 public class UserController {
 
 	@Autowired
@@ -32,7 +35,7 @@ public class UserController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<UserSec> getPermissionById (@PathVariable Long id){
+	public ResponseEntity<UserSec> getUserById(@PathVariable Long id){
 		Optional<UserSec> user = userService.findById(id);
 		return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 	}

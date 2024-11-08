@@ -52,10 +52,10 @@ public class SecurityConfig {
 
     // Crea y configura un AuthenticationProvider para la autenticación de usuarios
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(); // Crea un nuevo DaoAuthenticationProvider
         provider.setPasswordEncoder(passwordEncoder()); // Establece el codificador de contraseñas
-        provider.setUserDetailsService(userDetailsService()); // Establece el servicio de detalles del usuario
+        provider.setUserDetailsService(userDetailsService); // Establece el servicio de detalles del usuario
         return provider; // Devuelve el provider configurado
     }
 
@@ -66,7 +66,7 @@ public class SecurityConfig {
     }
 
     // Crea y configura un UserDetailsService con usuarios en memoria
-    @Bean
+    /*@Bean
     public UserDetailsService userDetailsService() {
         List<UserDetails> userDetailsList = new ArrayList<>(); // Lista para almacenar detalles de usuarios en memoria
         
@@ -91,7 +91,7 @@ public class SecurityConfig {
                 .build());
         
         return new InMemoryUserDetailsManager(userDetailsList); // Devuelve un gestor de usuarios en memoria con los usuarios configurados
-    }
+    }*/
 }
     	
     

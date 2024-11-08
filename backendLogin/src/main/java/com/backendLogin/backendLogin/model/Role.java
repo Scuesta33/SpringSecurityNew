@@ -35,8 +35,32 @@ public class Role {
 	@JoinTable(
 		name = "roles_permissions",
 		joinColumns = @JoinColumn(name = "role_id"),
-		inverseJoinColumns = @JoinColumn(name = "permission_id")
-	)
+		inverseJoinColumns=@JoinColumn(name = "permission_id"))
+	
 	private Set<Permission> permissionsList = new HashSet<>(); // Cambia esto a Set<Permission>
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
+
+	public Set<Permission> getPermissionsList() {
+		return permissionsList;
+	}
+
+	public void setPermissionsList(Set<Permission> permissionsList) {
+		this.permissionsList = permissionsList;
+	}
+    
 }
