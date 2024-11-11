@@ -18,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -62,36 +63,10 @@ public class SecurityConfig {
     // Define un PasswordEncoder que no realiza ninguna codificación (para fines de prueba)
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance(); // Utiliza NoOpPasswordEncoder para no codificar contraseñas
+        return new BCryptPasswordEncoder(); 
     }
 
-    // Crea y configura un UserDetailsService con usuarios en memoria
-    /*@Bean
-    public UserDetailsService userDetailsService() {
-        List<UserDetails> userDetailsList = new ArrayList<>(); // Lista para almacenar detalles de usuarios en memoria
-        
-        // Añade un usuario "sergi" con el rol de "ADMIN" y varias autoridades
-        userDetailsList.add(User.withUsername("sergi")
-                .password("1234") // Contraseña del usuario
-                .roles("ADMIN") // Rol del usuario
-                .authorities("CREATE", "READ", "UPDATE", "DELETE") // Autoridades específicas del usuario
-                .build());
-
-        // Añade un usuario "angela" con el rol de "USER" y una autoridad
-        userDetailsList.add(User.withUsername("angela")
-                .password("1234") // Contraseña del usuario
-                .roles("USER") // Rol del usuario
-                .authorities("READ") // Autoridades específicas del usuario
-                .build());
-        
-        userDetailsList.add(User.withUsername("pepe")
-                .password("1234") // Contraseña del usuario
-                .roles("USER") // Rol del usuario
-                .authorities("READ") // Autoridades específicas del usuario
-                .build());
-        
-        return new InMemoryUserDetailsManager(userDetailsList); // Devuelve un gestor de usuarios en memoria con los usuarios configurados
-    }*/
+   
 }
     	
     
