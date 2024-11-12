@@ -3,6 +3,7 @@ package com.backendLogin.backendLogin.securityconfig;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,11 +25,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.backendLogin.backendLogin.utils.JwtUtils;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-
+    
+	@Autowired
+	private JwtUtils jwtUtils;
+	
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	    http
@@ -38,6 +44,7 @@ public class SecurityConfig {
 	        )
 	      
 	        .httpBasic(Customizer.withDefaults()); // Habilita la autenticación básica
+	        .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class);
 
 	    return http.build(); // Devuelve la configuración construida
 	}
