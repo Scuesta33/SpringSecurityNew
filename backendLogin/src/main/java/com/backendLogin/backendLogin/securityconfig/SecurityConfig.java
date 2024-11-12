@@ -24,7 +24,9 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import com.backendLogin.backendLogin.securityconfig.filter.JwtTokenValidator;
 import com.backendLogin.backendLogin.utils.JwtUtils;
 
 @Configuration
@@ -38,16 +40,16 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	    http
-	        .csrf(csrf -> csrf.disable()) // Desactiva la protección CSRF
+	        .csrf(csrf -> csrf.disable()) // Disable CSRF protection
 	        .sessionManagement(session -> 
-	            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Configura la política de sesión como sin estado
+	            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Set session policy to stateless
 	        )
-	      
-	        .httpBasic(Customizer.withDefaults()); // Habilita la autenticación básica
-	        .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class);
+	        .httpBasic(Customizer.withDefaults()) // Enable basic authentication
+	        .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class); // Add JWT filter
 
-	    return http.build(); // Devuelve la configuración construida
+	    return http.build(); // Return the configured SecurityFilterChain
 	}
+
 
 
 
