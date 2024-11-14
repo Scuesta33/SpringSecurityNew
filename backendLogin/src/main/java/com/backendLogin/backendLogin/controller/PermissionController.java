@@ -52,7 +52,8 @@ public class PermissionController {
 
         // Si el permiso existe, lo devuelve con código 200 OK, de lo contrario, devuelve 404 Not Found
         return permission.map(ResponseEntity::ok)
-                         .orElseGet(() -> ResponseEntity.notFound().build());
+                         .orElseGet(() -> ResponseEntity.notFound().build());//map(ResponseEntity::ok): Si el permiso existe, crea una respuesta HTTP 200 OK con el permiso. Si el permiso no existe, crea una respuesta HTTP 404 Not Found.
+        
     }
 
     /**
