@@ -3,9 +3,11 @@ package com.backendLogin.backendLogin.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.security.core.Authentication; // correcto
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -94,6 +96,6 @@ public class UserDetailsServiceImp implements UserDetailsService {
 			throw new BadCredentialsException("Invalid username or password");
 		}
 		
-		return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), userDetails.getAuthorities();
+		return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), userDetails.getAuthorities());
 	}
 }
