@@ -19,43 +19,56 @@ import com.backendLogin.backendLogin.model.Role;
 import com.backendLogin.backendLogin.service.IPermissionService;
 import com.backendLogin.backendLogin.service.IRoleService;
 
-@RestController
-@RequestMapping("/api/roles")
+@RestController  // Indica que esta clase es un controlador REST que manejará solicitudes HTTP y devolverá respuestas en formato JSON (por defecto)
+@RequestMapping("/api/roles")  // Define la ruta base para todas las solicitudes en este controlador, en este caso "/api/roles"
 public class RoleController {
 
-	@Autowired
-	private IRoleService roleService;
-	
-	@Autowired
-	private IPermissionService permiService;
-	
-	@GetMapping
-	public ResponseEntity<List<Role>> getAllRoles(){
-		List<Role> roles = roleService.findAll();
-		return ResponseEntity.ok(roles);
-	}
-	
-	@GetMapping("/{id}")
-	public ResponseEntity<Role> getRoleById(@PathVariable Long id){
-		Optional<Role> role = roleService.findById(id);
-		return role.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-	}
-	
-	@PostMapping
-	public ResponseEntity<Role> createRole(@RequestBody Role role) {
-		Set<Permission> permiList = new HashSet<Permission>();
-		Permission readPermission;
-		
-		//Recuperar la permission por u ID
-		for (Permission per : role.getPermissionsList()) {
-			readPermission = permiService.findById(per.getId()).orElse(null);
-			if (readPermission != null) {
-				permiList.add(readPermission);
-			}
-		}
-		
-		role.setPermissionsList(permiList);
-		Role newRole = roleService.save(role);
-		return ResponseEntity.ok(newRole);
-	}
+    @Autowired  // Inyecta automáticamente el servicio IRoleService, que manejará las operaciones relacionadas con los roles
+    private IRoleService roleService;
+
+    @Autowired  // Inyecta automáticamente el servicio IPermissionService, que manejará las operaciones relacionadas con los permisos
+    private IPermissionService permiService;
+
+    // Método para manejar solicitudes GET a la ruta "/api/roles" y obtener todos los roles
+    @GetMapping  
+    public ResponseEntity<List<Role>> getAllRoles() {
+        // Llama al servicio roleService para obtener todos los roles de la base de datos
+        List<Role> roles = roleService.findAll();
+        // Devuelve una respuesta HTTP con código 200 (OK) y la lista de roles en el cuerpo de la respuesta
+        return ResponseEntity.ok(roles);
+    }
+
+    // Método para manejar solicitudes GET a la ruta "/api/roles/{id}" y obtener un rol específico por su ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Role> getRoleById(@PathVariable Long id) {
+        // Busca un rol por su ID usando el servicio roleService
+        Optional<Role> role = roleService.findById(id);
+        // Si el rol existe, devuelve una respuesta HTTP 200 (OK) con el rol. Si no, devuelve una respuesta 404 (Not Found)
+        return role.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Método para manejar solicitudes POST a la ruta "/api/roles" y crear un nuevo rol
+    @PostMapping  
+    public ResponseEntity<Role> createRole(@RequestBody Role role) {
+        // Crea un conjunto de permisos para asociar con el rol
+        Set<Permission> permiList = new HashSet<Permission>();
+        Permission readPermission;
+
+        // Recorre los permisos del rol recibido en la solicitud
+        for (Permission per : role.getPermissionsList()) {
+            // Busca cada permiso por su ID usando el servicio permiService
+            readPermission = permiService.findById(per.getId()).orElse(null);
+            if (readPermission != null) {
+                // Si el permiso existe, lo añade al conjunto de permisos del rol
+                permiList.add(readPermission);
+            }
+        }
+
+        // Asocia el conjunto de permisos al rol
+        role.setPermissionsList(permiList);
+        // Guarda el nuevo rol usando el servicio roleService
+        Role newRole = roleService.save(role);
+        // Devuelve una respuesta HTTP 200 (OK) con el rol recién creado en el cuerpo de la respuesta
+        return ResponseEntity.ok(newRole);
+    }
 }

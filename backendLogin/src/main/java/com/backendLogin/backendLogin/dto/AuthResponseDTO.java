@@ -1,11 +1,11 @@
-package com.backendLogin.backendLogin.dto;
+package com.backendLogin.backendLogin.dto;  // Define el paquete en el que se encuentra este DTO
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;  // Importa la anotación JsonPropertyOrder para controlar el orden de las propiedades en el JSON resultante
 
-@JsonPropertyOrder({"username", "message", "jwt", "status"})
-public record AuthResponseDTO (String username,
-		                       String message,
-		                       String jwt,
-		                       Boolean status) {
-
+// Define un "record" llamado AuthResponseDTO. Este tipo de clase es inmutable y compacta en Java.
+@JsonPropertyOrder({"username", "message", "jwt", "status"})  // Anotación que define el orden de los campos cuando se convierte en JSON
+public record AuthResponseDTO (String username,     // Campo para el nombre de usuario
+                               String message,      // Campo para el mensaje de respuesta, por ejemplo, "Login successful"
+                               String jwt,          // Campo para el JWT (token de autenticación)
+                               Boolean status) {    // Campo para el estado de la autenticación (true si es exitosa, false si falla)
 }
