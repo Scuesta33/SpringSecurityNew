@@ -25,6 +25,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.backendLogin.backendLogin.securityconfig.filter.JwtTokenValidator;
 import com.backendLogin.backendLogin.utils.JwtUtils;
@@ -35,7 +37,16 @@ import com.backendLogin.backendLogin.utils.JwtUtils;
 @EnableWebSecurity
 //Habilita la seguridad en métodos de controladores (como la autorización de roles).
 @EnableMethodSecurity
-public class SecurityConfig {
+public class SecurityConfig implements WebMvcConfigurer{
+	 @Override
+	    public void addCorsMappings(CorsRegistry registry) {
+	        registry.addMapping("/**")  // Configura las rutas para las que habilitar CORS
+	                .allowedOrigins("http://localhost:4200")  // Permite a tu frontend (cambia según tu caso)
+	                .allowedMethods("GET", "POST", "PUT", "DELETE")  // Métodos HTTP permitidos
+	                .allowedHeaders("*")  // Permite cualquier tipo de cabeceras
+	                .allowCredentials(true);  // Permite enviar credenciales (como cookies o cabeceras Authorization)
+	    }
+
 
  // Inyecta una instancia de la clase JwtUtils para gestionar la validación del token JWT.
  @Autowired

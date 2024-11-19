@@ -35,6 +35,8 @@ public class UserSec {
     private String password;  // La contraseña del usuario, normalmente encriptada.
 
     private boolean enabled;  // Indica si la cuenta del usuario está habilitada (si puede iniciar sesión).
+    
+  
 
     private boolean accountNotExpired;  // Indica si la cuenta del usuario ha expirado (por ejemplo, debido a inactividad).
 
