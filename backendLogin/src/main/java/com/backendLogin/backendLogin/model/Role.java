@@ -29,7 +29,7 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)  // La clave primaria se genera automáticamente (auto-incremento).
     private Long id;  // El identificador único del rol (clave primaria).
 
-    private String role;  // El nombre del rol (por ejemplo, "ADMIN", "USER", etc.).
+    private String name;  // El nombre del rol (por ejemplo, "ADMIN", "USER", etc.).
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)  // Relación muchos a muchos con la entidad Permission. Eager indica que los permisos asociados a un rol se cargarán inmediatamente (de forma anticipada) cuando se obtenga el rol.
     @JoinTable(  // Define la tabla intermedia que se usará para la relación muchos a muchos.
@@ -39,8 +39,7 @@ public class Role {
     )
     private Set<Permission> permissionsList = new HashSet<>();  // Un rol tiene una lista de permisos. Usamos un Set para evitar duplicados.
 
-    // Métodos getter y setter manuales, aunque Lombok generaría estos automáticamente.
-    
+    // Los métodos getRole() y setRole() no son necesarios. Deben utilizar 'name' en su lugar.
     public Long getId() {
         return id;
     }
@@ -49,12 +48,12 @@ public class Role {
         this.id = id;
     }
 
-    public String getRole() {
-        return role;
+    public String getName() {  // Cambiado de getRole() a getName()
+        return name;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setName(String name) {  // Cambiado de setRole() a setName()
+        this.name = name;
     }
 
     public Set<Permission> getPermissionsList() {
@@ -65,4 +64,3 @@ public class Role {
         this.permissionsList = permissionsList;
     }
 }
-

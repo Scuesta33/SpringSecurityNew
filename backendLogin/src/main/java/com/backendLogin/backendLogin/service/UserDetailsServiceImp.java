@@ -39,15 +39,24 @@ public class UserDetailsServiceImp implements UserDetailsService {  // Implement
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {  // Método que se llama para cargar un usuario basado en el nombre de usuario.
 
 		// Buscar el usuario en la base de datos por nombre de usuario.
-		UserSec userSec = userRepo.findUserEntityByUsername(username)
+		UserSec userSec = userRepo.findByUsername(username)
 				.orElseThrow(() -> new UsernameNotFoundException("El usuario " + username + " no fue encontrado"));
 		
 		// Crear una lista de autoridades (permisos y roles).
 		List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
 		
-		// Para cada rol del usuario, convertirlo a una autoridad de Spring Security (SimpleGrantedAuthority) con el prefijo "ROLE_".
-		userSec.getRolesList()
-		       .forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getRole()))));
+		// Verificar que la lista de roles no sea null ni vacía
+		if (userSec.getRolesList() != null && !userSec.getRolesList().isEmpty()) {
+		    // Iterar sobre los roles y agregar una autoridad por cada uno
+		    userSec.getRolesList().forEach(role -> {
+		        // Verificar que el nombre del rol no sea null ni vacío
+		        if (role.getName() != null && !role.getName().isEmpty()) {
+		            // Añadir el rol como autoridad con el prefijo "ROLE_"
+		            authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName())));
+		        }
+		    });
+		}
+
 
 		// Traer permisos desde los roles y convertirlos en SimpleGrantedAuthority.
 		// Un "flatMap" se usa para aplanar los roles y los permisos en una única lista.

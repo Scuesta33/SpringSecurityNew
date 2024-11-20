@@ -15,6 +15,7 @@ public interface IRoleService {
  // Método para obtener un rol específico por su ID
  // Devuelve un Optional, ya que el rol puede no existir en la base de datos
  Optional<Role> findById(Long id);
+ 
 
  // Método para guardar un nuevo rol en la base de datos
  // Recibe un objeto Role y lo guarda, devolviendo el rol guardado (con su ID asignado)
@@ -27,5 +28,7 @@ public interface IRoleService {
  // Método para actualizar un rol existente
  // Recibe un objeto Role con los nuevos datos y lo actualiza en la base de datos
  Role update(Role role);
+ 
+ Optional<Role> findByName(String name);
 }
 

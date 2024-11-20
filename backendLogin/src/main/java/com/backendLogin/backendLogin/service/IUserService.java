@@ -3,6 +3,7 @@ package com.backendLogin.backendLogin.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.backendLogin.backendLogin.model.Role;
 import com.backendLogin.backendLogin.model.UserSec;
 
 //Definición de la interfaz IUserService que declara métodos para manejar operaciones sobre usuarios
@@ -30,5 +31,8 @@ public interface IUserService {
  // Método para encriptar la contraseña de un usuario
  // Recibe la contraseña en texto plano y devuelve la contraseña encriptada
  String encriptPassword(String password);
+ 
+ Optional<UserSec> findByName(String username);
+ 
 }
 
