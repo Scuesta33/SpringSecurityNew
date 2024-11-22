@@ -33,6 +33,10 @@ public interface IUserService {
  String encriptPassword(String password);
  
  Optional<UserSec> findByName(String username);
+
+UserSec updateUser(Long id, String username, String password) throws Exception;
+
+UserSec updateUser(String newUsername, String newPassword) throws Exception;
  
 }
 
