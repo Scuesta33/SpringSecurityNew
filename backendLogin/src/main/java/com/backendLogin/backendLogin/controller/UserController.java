@@ -6,11 +6,18 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backendLogin.backendLogin.dto.DeleteUserRequestDTO;
 import com.backendLogin.backendLogin.dto.RegisterDTO;
 import com.backendLogin.backendLogin.dto.UserSecUpdateRequest;
 import com.backendLogin.backendLogin.model.Role;
@@ -37,6 +45,8 @@ public class UserController {
 
     @Autowired
     private IRoleService roleService;  // Servicio para manejar la lógica de roles
+    
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     // Método para obtener todos los usuarios
     @GetMapping
@@ -104,7 +114,7 @@ public class UserController {
         UserSec newUser = userService.save(userSec);
 
         // Devolvemos una respuesta exitosa
-        return ResponseEntity.ok(Map.of("message", "User registered successfully", "user", newUser));
+        return ResponseEntity.ok(Map.of("message", "Usuario registrado exitosa", "user", newUser));
     }
     
     @PutMapping("/updateUser")
@@ -119,6 +129,28 @@ public class UserController {
         } catch (Exception e) {
             // Manejo de otros errores
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteUser() {
+        try {
+            // Obtener el nombre de usuario desde el contexto de seguridad (decodificado desde el token JWT)
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName(); // El nombre de usuario proviene del token JWT
+
+            // Llamamos al servicio para eliminar al usuario con el nombre de usuario extraído
+            boolean isDeleted = userService.deleteByUsername(username);
+
+            // Si la eliminación es exitosa
+            if (isDeleted) {
+                return ResponseEntity.ok("Usuario eliminado exitosamente.");
+            } else {
+                return ResponseEntity.status(400).body("No se pudo eliminar el usuario.");
+            }
+        } catch (Exception e) {
+            // En caso de error, logueamos el error y devolvemos un mensaje de error
+            logger.error("Error al eliminar el usuario: " + e.getMessage(), e);
+            return ResponseEntity.status(500).body("Hubo un error al procesar la solicitud.");
         }
     }
 
