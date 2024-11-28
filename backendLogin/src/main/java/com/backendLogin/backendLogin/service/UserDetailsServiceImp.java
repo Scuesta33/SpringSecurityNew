@@ -78,26 +78,34 @@ public class UserDetailsServiceImp implements UserDetailsService {  // Implement
 
 	// Método para realizar el login de un usuario.
 	public AuthResponseDTO loginUser(AuthLoginRequestDTO authLoginRequest) {
-		
-		// Recuperar el nombre de usuario y la contraseña del objeto DTO.
-		String username = authLoginRequest.username();
-		String password = authLoginRequest.password();
-		
-		// Intentar autenticar al usuario con el nombre de usuario y la contraseña.
-		Authentication authentication = this.authenticate(username, password);
-		
-		// Establecer el contexto de seguridad con la autenticación exitosa.
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		
-		// Crear un token de acceso JWT basado en la autenticación.
-		String accessToken = jwtUtils.createToken(authentication);
-		
-		// Crear una respuesta DTO con el JWT y un mensaje de éxito.
-		AuthResponseDTO authResponseDTO = new AuthResponseDTO(username, "Login successful", accessToken, true);
-		
-		// Devolver el objeto AuthResponseDTO.
-		return authResponseDTO;
+	    String username = authLoginRequest.username();
+	    String password = authLoginRequest.password();
+	    
+	    // Autenticación del usuario
+	    Authentication authentication = this.authenticate(username, password);
+	    
+	    // Establecer el contexto de seguridad con la autenticación exitosa.
+	    SecurityContextHolder.getContext().setAuthentication(authentication);
+	    
+	    // Crear un token de acceso JWT basado en la autenticación.
+	    String accessToken = jwtUtils.createToken(authentication);
+	    
+	    // Obtener el usuario desde la base de datos usando el username
+	    UserSec userSec = userRepo.findByUsername(username)
+	            .orElseThrow(() -> new UsernameNotFoundException("El usuario " + username + " no fue encontrado"));
+	    
+	    // Crear la respuesta incluyendo el id
+	    AuthResponseDTO authResponseDTO = new AuthResponseDTO(
+	            username, 
+	            "Login successful", 
+	            accessToken, 
+	            true, 
+	            userSec.getId()  // Aquí agregamos el ID del usuario
+	    );
+	    
+	    return authResponseDTO;
 	}
+
 	
 	// Método para autenticar un usuario dado su nombre de usuario y contraseña.
 	public Authentication authenticate(String username, String password) {

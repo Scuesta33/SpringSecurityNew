@@ -14,20 +14,23 @@ import com.backendLogin.backendLogin.service.UserDetailsServiceImp;
 
 import jakarta.validation.Valid;
 
-@RestController //controlador Rest
+@RestController
 @RequestMapping("/auth")
 public class AuthenticationController {
 
-	@Autowired
-	private UserDetailsServiceImp userDetailsService; //inyectamos la dependencia de UserDetaisServiceImp 
-//Método para inicio de sesión	
-	@PostMapping("/login")
-	public ResponseEntity<AuthResponseDTO> login (@RequestBody @Valid AuthLoginRequestDTO userRequest) { //RequestBody indica que los datos enviados por el cliente en el cuerpo de la solicitud serán convertidos a un objeto de tipo AuthLoginRequestDTO
-	    return new ResponseEntity<>(this.userDetailsService.loginUser(userRequest), HttpStatus.OK); //Valid asegura que el objeto userRequest se validará según las reglas de DTO
-	}//se llama al método loginUser del servicio userDetailsService, pasándole el objeto userRequest. Este servicio se encarga de procesar la solicitud de inicio de sesión y devolver una respuesta.
-	//loginUser verificará las credenciales(nombre de usuario y contraseña), autentificará al usuario y, si es exitoso, generará un token JWT o una sesión para el usuario.
-}   /*Finalmente, el método devuelve un ResponseEntity, que encapsula la respuesta HTTP. El cuerpo de la respuesta será el resultado de userDetailsService.loginUser(userRequest) (probablemente un token de autenticación o información relevante sobre la autenticación).
-HttpStatus.OK indica que la solicitud fue exitosa (código de estado HTTP 200)*/
+    @Autowired
+    private UserDetailsServiceImp userDetailsService;
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody @Valid AuthLoginRequestDTO userRequest) {
+        // Llamamos al servicio para realizar el login y obtenemos la respuesta con el JWT, mensaje, estado y ID
+        AuthResponseDTO response = this.userDetailsService.loginUser(userRequest);
+        
+        // Devolvemos la respuesta con código HTTP 200 (OK)
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+}
+
 
 
 /*Resumen de la lógica: El cliente envía una solicitud POST a /auth/login con un cuerpo que contiene las credenciales del usuario (por ejemplo, un nombre de usuario y contraseña).
