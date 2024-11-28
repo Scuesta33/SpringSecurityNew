@@ -80,21 +80,22 @@ public class UserDetailsServiceImp implements UserDetailsService {  // Implement
 	public AuthResponseDTO loginUser(AuthLoginRequestDTO authLoginRequest) {
 	    String username = authLoginRequest.username();
 	    String password = authLoginRequest.password();
-	    
+
 	    // Autenticación del usuario
 	    Authentication authentication = this.authenticate(username, password);
-	    
+
 	    // Establecer el contexto de seguridad con la autenticación exitosa.
 	    SecurityContextHolder.getContext().setAuthentication(authentication);
-	    
-	    // Crear un token de acceso JWT basado en la autenticación.
-	    String accessToken = jwtUtils.createToken(authentication);
-	    
+
 	    // Obtener el usuario desde la base de datos usando el username
 	    UserSec userSec = userRepo.findByUsername(username)
 	            .orElseThrow(() -> new UsernameNotFoundException("El usuario " + username + " no fue encontrado"));
 	    
-	    // Crear la respuesta incluyendo el id
+	    Long userId = userSec.getId();
+	    // Crear un token de acceso JWT basado en la autenticación, incluyendo el id del usuario
+	    String accessToken = jwtUtils.createToken(authentication, userId);  // Modificación aquí
+
+	    // Crear la respuesta incluyendo el id del usuario
 	    AuthResponseDTO authResponseDTO = new AuthResponseDTO(
 	            username, 
 	            "Login successful", 
@@ -102,9 +103,10 @@ public class UserDetailsServiceImp implements UserDetailsService {  // Implement
 	            true, 
 	            userSec.getId()  // Aquí agregamos el ID del usuario
 	    );
-	    
+
 	    return authResponseDTO;
 	}
+
 
 	
 	// Método para autenticar un usuario dado su nombre de usuario y contraseña.

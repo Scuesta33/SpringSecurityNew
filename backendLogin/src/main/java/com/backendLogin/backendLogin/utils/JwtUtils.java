@@ -28,32 +28,37 @@ public class JwtUtils {
   private String userGenerator; // El nombre del generador del token (generalmente la aplicación o servidor que genera el token).
   
   // Método para crear un JWT a partir de la autenticación del usuario
-  public String createToken(Authentication authentication) {
-    // El algoritmo HMAC256 usa una clave secreta para firmar el JWT
-    Algorithm algorithm = Algorithm.HMAC256(privateKey);
-    
-    // Se obtiene el nombre de usuario del principal (usuario autenticado)
-    String username = authentication.getPrincipal().toString();
-    
-    // Se obtiene una lista de las autoridades (roles y permisos) del usuario y se convierte a una cadena separada por comas
-    String authorities = authentication.getAuthorities()
-        .stream()
-        .map(GrantedAuthority::getAuthority)  // Extrae la autoridad de cada `GrantedAuthority`
-        .collect(Collectors.joining(","));  // Las autoridades se concatenan en una cadena separada por comas
-    
-    // Creación del JWT con las distintas propiedades
-    String jwtToken = JWT.create()  // Usamos la librería JWT para construir el token
-        .withIssuer(this.userGenerator)  // Establece el generador del token
-        .withSubject(username)  // Establece el "subject" del token (usualmente el username del usuario)
-        .withClaim("authorities", authorities)  // Agrega el claim "authorities" con los roles/permisos del usuario
-        .withIssuedAt(new Date())  // Fecha de emisión del token
-        .withExpiresAt(new Date(System.currentTimeMillis() + 1800000))  // El token expira en 30 minutos (1800000 milisegundos)
-        .withJWTId(UUID.randomUUID().toString())  // ID único del token
-        .withNotBefore(new Date(System.currentTimeMillis()))  // El token no será válido antes de la fecha actual
-        .sign(algorithm);  // Firma el token con el algoritmo especificado (HMAC256)
+  public String createToken(Authentication authentication, Long userId) {
+	    // El algoritmo HMAC256 usa una clave secreta para firmar el JWT
+	    Algorithm algorithm = Algorithm.HMAC256(privateKey);
 
-    return jwtToken;  // Devuelve el JWT generado
-  }
+	    // Se obtiene el nombre de usuario del principal (usuario autenticado)
+	    String username = authentication.getPrincipal().toString();
+
+	    // Se obtiene una lista de las autoridades (roles y permisos) del usuario y se convierte a una cadena separada por comas
+	    String authorities = authentication.getAuthorities()
+	        .stream()
+	        .map(GrantedAuthority::getAuthority)  // Extrae la autoridad de cada `GrantedAuthority`
+	        .collect(Collectors.joining(","));  // Las autoridades se concatenan en una cadena separada por comas
+
+	    // Creación del JWT con las distintas propiedades
+	     // Devuelve el JWT generado
+	 // Creación del JWT con las distintas propiedades
+	    String jwtToken = JWT.create()  // Usamos la librería JWT para construir el token
+	        .withIssuer(this.userGenerator)  // Establece el generador del token
+	        .withSubject(username)  // Establece el "subject" del token (usualmente el username del usuario)
+	        .withClaim("authorities", authorities)  // Agrega el claim "authorities" con los roles/permisos del usuario
+	        .withClaim("id", userId)  // Aquí cambiamos "userId" a "id"
+	        .withIssuedAt(new Date())  // Fecha de emisión del token
+	        .withExpiresAt(new Date(System.currentTimeMillis() + 1800000))  // El token expira en 30 minutos (1800000 milisegundos)
+	        .withJWTId(UUID.randomUUID().toString())  // ID único del token
+	        .withNotBefore(new Date(System.currentTimeMillis()))  // El token no será válido antes de la fecha actual
+	        .sign(algorithm);  // Firma el token con el algoritmo especificado (HMAC256)
+
+	    return jwtToken;  // Devuelve el JWT generado
+
+	}
+
   
   // Método para validar y decodificar un JWT
   public DecodedJWT validateToken(String token) {
@@ -87,5 +92,10 @@ public class JwtUtils {
   // Método para obtener todos los claims del JWT decodificado
   public Map<String, Claim> returnAllClaims(DecodedJWT decodedJWT) {
     return decodedJWT.getClaims();  // Devuelve todos los claims (como un mapa clave-valor)
+  }
+
+  // Método para extraer el 'id' del JWT decodificado
+  public Long extractUserId(DecodedJWT decodedJWT) {
+    return decodedJWT.getClaim("id").asLong();  // Extraemos el 'id' como Long desde el JWT
   }
 }
