@@ -13,5 +13,6 @@ public interface IUserRepository extends JpaRepository<UserSec, Long> {
  // Método personalizado que busca una entidad 'UserSec' por su nombre de usuario ('username').
  // 'Optional<UserSec>' se usa para evitar un NullPointerException si no se encuentra un usuario con ese nombre.
  Optional<UserSec> findByUsername(String username);
+ Optional<UserSec> findById(Long id);
 }
 

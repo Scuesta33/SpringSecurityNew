@@ -3,6 +3,7 @@ package com.backendLogin.backendLogin.controller;
 import org.springframework.beans.factory.annotation.Autowired;        
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,17 @@ public class AuthenticationController {
     public ResponseEntity<AuthResponseDTO> login(@RequestBody @Valid AuthLoginRequestDTO userRequest) {
         // Llamamos al servicio para realizar el login y obtenemos la respuesta con el JWT, mensaje, estado y ID
         AuthResponseDTO response = this.userDetailsService.loginUser(userRequest);
+        
+        // Devolvemos la respuesta con código HTTP 200 (OK)
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @PostMapping("/login/{id}")
+    public ResponseEntity<AuthResponseDTO> login(@PathVariable Long id, @RequestBody @Valid AuthLoginRequestDTO userRequest) {
+        // Llamamos al servicio para realizar el login y obtener la respuesta con el JWT y el mensaje
+        AuthResponseDTO response = this.userDetailsService.loginUser(userRequest);
+
+        // Aquí podrías usar el ID capturado de la URL si es necesario para la lógica
+        System.out.println("Login solicitado para el ID de usuario: " + id);
         
         // Devolvemos la respuesta con código HTTP 200 (OK)
         return new ResponseEntity<>(response, HttpStatus.OK);

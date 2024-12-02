@@ -153,6 +153,24 @@ public class UserController {
             return ResponseEntity.status(500).body("Hubo un error al procesar la solicitud.");
         }
     }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteUserById(@PathVariable Long id) {
+        try {
+            // Llamamos al servicio para eliminar el usuario por su ID
+            boolean isDeleted = userService.deleteUserById(id);
+
+            // Si la eliminación es exitosa
+            if (isDeleted) {
+                return ResponseEntity.ok("Usuario eliminado exitosamente.");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
+            }
+        } catch (Exception e) {
+            // En caso de error, logueamos el error y devolvemos un mensaje de error
+            logger.error("Error al eliminar el usuario con ID " + id + ": " + e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud.");
+        }
+    }
 
 
         

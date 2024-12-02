@@ -40,5 +40,6 @@ UserSec updateUser(String newUsername, String newPassword) throws Exception;
 boolean deleteByUsernameAndPassword(String username, String password);
 
 boolean deleteByUsername(String username);
+boolean deleteUserById(Long id);
 }
 
