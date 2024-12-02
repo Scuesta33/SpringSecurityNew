@@ -157,7 +157,17 @@ public class UserService implements IUserService {
 		// TODO Auto-generated method stub
 		return false;
 	}
-}
+
+	@Override
+	public Optional<UserSec> findByEmail(String email) {
+	    return userRepository.findByEmail(email); // Esto es correcto
+	}
+
+
+	}
+
+	
+
 
 	
 

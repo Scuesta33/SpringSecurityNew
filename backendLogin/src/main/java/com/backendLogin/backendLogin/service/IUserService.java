@@ -41,5 +41,6 @@ boolean deleteByUsernameAndPassword(String username, String password);
 
 boolean deleteByUsername(String username);
 boolean deleteUserById(Long id);
+Optional<UserSec> findByEmail(String email);
 }
 
