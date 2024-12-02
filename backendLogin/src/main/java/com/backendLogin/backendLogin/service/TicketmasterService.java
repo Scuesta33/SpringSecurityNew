@@ -10,8 +10,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.backendLogin.backendLogin.model.TicketmasterEventResponse;
 
-
-
 @Service
 public class TicketmasterService {
 
@@ -20,6 +18,7 @@ public class TicketmasterService {
 
     @Value("${ticketmaster.api.key}")
     private String apiKey;
+
     @Autowired
     private final RestTemplate restTemplate;
 
@@ -37,20 +36,19 @@ public class TicketmasterService {
                 .queryParam("city", city)  // Ciudad sin saltos de línea ni espacios
                 .toUriString();
 
-        // Imprimir la URL para asegurarnos de que se construye correctamente
-        System.out.println("URL de la API: " + url);
-
         try {
-            // Realizar la solicitud GET y obtener la respuesta como String
+            // Realizamos la solicitud GET y obtenemos la respuesta directamente como String
             String jsonResponse = restTemplate.getForObject(url, String.class);
-            System.out.println("Respuesta completa de la API: " + jsonResponse); // Imprimir respuesta completa
+
+            // Imprimir la respuesta JSON completa para depuración
+            System.out.println("Respuesta completa de la API: " + jsonResponse);
 
             // Deserializar la respuesta a TicketmasterEventResponse
             TicketmasterEventResponse response = restTemplate.getForObject(url, TicketmasterEventResponse.class);
 
             // Si la respuesta contiene eventos, los devolvemos
-            if (response != null && response.getEmbedded() != null) {
-                return response.getEmbedded().getEvents();
+            if (response != null && response.getEmbedded() != null && response.getEmbedded().getEvents() != null) {
+                return response.getEmbedded().getEvents();  // Accedemos correctamente a los eventos dentro de _embedded
             } else {
                 // Si no se encontraron eventos, devolver una lista vacía
                 return List.of();
@@ -62,4 +60,6 @@ public class TicketmasterService {
             return List.of(); // En caso de error, devolver una lista vacía
         }
     }
+
+
 }

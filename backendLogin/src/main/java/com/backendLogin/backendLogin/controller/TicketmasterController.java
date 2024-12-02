@@ -23,16 +23,21 @@ public class TicketmasterController {
 
     @GetMapping("/events")
     public ResponseEntity<?> getEvents(@RequestParam String city) {
-        // Llamada al servicio para obtener los eventos de Ticketmaster
-        List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterService.getEvents(city);
+        try {
+            // Llamada al servicio para obtener los eventos de Ticketmaster
+            List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterService.getEvents(city);
 
-        // Verifica si la lista de eventos está vacía
-        if (events == null || events.isEmpty()) {
-            System.out.println("No se encontraron eventos para la ciudad: " + city); // Log para depuración
-            return ResponseEntity.status(404).body("No se encontraron eventos para la ciudad: " + city);
+            // Verifica si la lista de eventos está vacía
+            if (events.isEmpty()) {
+                // Si no se encuentran eventos, se devuelve una respuesta con código 404
+                return ResponseEntity.status(404).body("No se encontraron eventos para la ciudad: " + city);
+            }
+
+            // Devuelve la lista de eventos como respuesta si se encuentran eventos
+            return ResponseEntity.ok(events);
+        } catch (Exception e) {
+            // Si ocurre algún error en la llamada al servicio (por ejemplo, problemas de red o con la API externa)
+            return ResponseEntity.status(500).body("Hubo un problema al obtener los eventos. Inténtelo de nuevo más tarde.");
         }
-
-        // Devuelve la lista de eventos como respuesta
-        return ResponseEntity.ok(events);
     }
 }
