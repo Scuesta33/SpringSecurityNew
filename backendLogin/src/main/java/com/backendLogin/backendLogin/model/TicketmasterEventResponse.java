@@ -1,25 +1,26 @@
 package com.backendLogin.backendLogin.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class TicketmasterEventResponse {
 
-    private Embedded _embedded;
+    @JsonProperty("_embedded")
+    private Embedded embedded;
 
-    // Getter y Setter para _embedded
     public Embedded getEmbedded() {
-        return _embedded;
+        return embedded;
     }
 
-    public void setEmbedded(Embedded _embedded) {
-        this._embedded = _embedded;
+    public void setEmbedded(Embedded embedded) {
+        this.embedded = embedded;
     }
 
     // Clase interna para mapear el campo "_embedded"
     public static class Embedded {
+        @JsonProperty("events")  // Mapea la propiedad "events" del JSON
         private List<Event> events;
 
-        // Getter y Setter para events
         public List<Event> getEvents() {
             return events;
         }
@@ -36,9 +37,11 @@ public class TicketmasterEventResponse {
         private String id;
         private String url;
         private String locale;
+        
+        @JsonProperty("images")  // Mapea el campo "images" si está presente
         private List<Image> images;
 
-        // Getter y Setter para cada campo
+        // Getters y Setters
         public String getName() {
             return name;
         }
@@ -129,3 +132,4 @@ public class TicketmasterEventResponse {
         }
     }
 }
+

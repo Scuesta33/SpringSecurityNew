@@ -33,11 +33,11 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Autowired
     private JwtUtils jwtUtils; // Inyecta el JwtUtils para la validación de JWT
 
-    // Configuración de CORS para permitir solicitudes de frontend
+    // Configuración de CORS para permitir solicitudes desde el frontend
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Habilita CORS para todas las rutas
-                .allowedOrigins("http://localhost:4200") // Permite solicitudes desde este origen (ajusta según sea necesario)
+                .allowedOrigins("http://localhost:4200", "http://localhost:8080") // Permite solicitudes desde estos orígenes (ajustar según sea necesario)
                 .allowedMethods("GET", "POST", "PUT", "DELETE") // Métodos permitidos
                 .allowedHeaders("*") // Permite todas las cabeceras
                 .allowCredentials(true); // Permite enviar credenciales (cookies, headers de autorización)
@@ -51,7 +51,7 @@ public class SecurityConfig implements WebMvcConfigurer {
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Configura las sesiones como sin estado
             )
-            .httpBasic(Customizer.withDefaults()) // Permite autenticación básica (no se usará JWT directamente)
+            .httpBasic(Customizer.withDefaults()) // Permite autenticación básica (si es necesario)
             .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class); // Añade el filtro para validación JWT
 
         return http.build(); // Devuelve el filtro de seguridad configurado
@@ -78,6 +78,3 @@ public class SecurityConfig implements WebMvcConfigurer {
         return new BCryptPasswordEncoder(); // Usa BCrypt para la encriptación de contraseñas
     }
 }
-
-    	
-    
