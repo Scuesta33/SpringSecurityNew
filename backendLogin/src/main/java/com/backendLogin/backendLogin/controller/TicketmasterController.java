@@ -1,17 +1,21 @@
 package com.backendLogin.backendLogin.controller;
 
-import java.util.List;
+import com.backendLogin.backendLogin.model.TicketmasterEventResponse;
+import com.backendLogin.backendLogin.service.TicketmasterService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backendLogin.backendLogin.model.TicketmasterEventResponse;
-import com.backendLogin.backendLogin.service.TicketmasterService;
+import java.util.List;
+import java.util.Map;
 
 @RestController
+@RequestMapping("/api/events")
 public class TicketmasterController {
 
     private final TicketmasterService ticketmasterService;
@@ -21,23 +25,16 @@ public class TicketmasterController {
         this.ticketmasterService = ticketmasterService;
     }
 
-    @GetMapping("/events")
-    public ResponseEntity<?> getEvents(@RequestParam String city) {
-        try {
-            // Llamada al servicio para obtener los eventos de Ticketmaster
-            List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterService.getEvents(city);
+    @GetMapping("/city/{city}")
+    public ResponseEntity<List<TicketmasterEventResponse.Event>> getEvents(@PathVariable String city) {
+        List<TicketmasterEventResponse.Event> events = ticketmasterService.getEvents(city);
 
-            // Verifica si la lista de eventos está vacía
-            if (events.isEmpty()) {
-                // Si no se encuentran eventos, se devuelve una respuesta con código 404
-                return ResponseEntity.status(404).body("No se encontraron eventos para la ciudad: " + city);
-            }
-
-            // Devuelve la lista de eventos como respuesta si se encuentran eventos
-            return ResponseEntity.ok(events);
-        } catch (Exception e) {
-            // Si ocurre algún error en la llamada al servicio (por ejemplo, problemas de red o con la API externa)
-            return ResponseEntity.status(500).body("Hubo un problema al obtener los eventos. Inténtelo de nuevo más tarde.");
+        if (events.isEmpty()) {
+            return ResponseEntity.noContent().build();  // 204 No Content si no se encuentran eventos
         }
+
+        return ResponseEntity.ok(events);  // 200 OK con los eventos encontrados
     }
 }
+
+

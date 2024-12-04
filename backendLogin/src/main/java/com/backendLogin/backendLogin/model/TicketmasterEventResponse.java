@@ -6,6 +6,7 @@ public class TicketmasterEventResponse {
 
     private Embedded _embedded;
 
+    // Getter y Setter para _embedded
     public Embedded getEmbedded() {
         return _embedded;
     }
@@ -14,9 +15,11 @@ public class TicketmasterEventResponse {
         this._embedded = _embedded;
     }
 
+    // Clase interna para mapear el campo "_embedded"
     public static class Embedded {
         private List<Event> events;
 
+        // Getter y Setter para events
         public List<Event> getEvents() {
             return events;
         }
@@ -24,83 +27,105 @@ public class TicketmasterEventResponse {
         public void setEvents(List<Event> events) {
             this.events = events;
         }
+    }
 
-        public static class Event {
-            private String name;
-            private String id;
-            private String url;
-            private String locale;
-            private List<Image> images;  // Lista de imágenes
+    // Clase interna para mapear cada "event"
+    public static class Event {
+        private String name;
+        private String type;
+        private String id;
+        private String url;
+        private String locale;
+        private List<Image> images;
 
-            public String getName() {
-                return name;
-            }
+        // Getter y Setter para cada campo
+        public String getName() {
+            return name;
+        }
 
-            public void setName(String name) {
-                this.name = name;
-            }
+        public void setName(String name) {
+            this.name = name;
+        }
 
-            public String getId() {
-                return id;
-            }
+        public String getType() {
+            return type;
+        }
 
-            public void setId(String id) {
-                this.id = id;
-            }
+        public void setType(String type) {
+            this.type = type;
+        }
 
-            public String getUrl() {
-                return url;
-            }
+        public String getId() {
+            return id;
+        }
 
-            public void setUrl(String url) {
-                this.url = url;
-            }
+        public void setId(String id) {
+            this.id = id;
+        }
 
-            public String getLocale() {
-                return locale;
-            }
+        public String getUrl() {
+            return url;
+        }
 
-            public void setLocale(String locale) {
-                this.locale = locale;
-            }
+        public void setUrl(String url) {
+            this.url = url;
+        }
 
-            public List<Image> getImages() {
-                return images;
-            }
+        public String getLocale() {
+            return locale;
+        }
 
-            public void setImages(List<Image> images) {
-                this.images = images;
-            }
+        public void setLocale(String locale) {
+            this.locale = locale;
+        }
 
-            public static class Image {
-                private String url;
-                private int width;
-                private int height;
+        public List<Image> getImages() {
+            return images;
+        }
 
-                public String getUrl() {
-                    return url;
-                }
+        public void setImages(List<Image> images) {
+            this.images = images;
+        }
+    }
 
-                public void setUrl(String url) {
-                    this.url = url;
-                }
+    // Clase para mapear las imágenes del evento
+    public static class Image {
+        private String ratio;
+        private String url;
+        private int width;
+        private int height;
 
-                public int getWidth() {
-                    return width;
-                }
+        // Getters y Setters
+        public String getRatio() {
+            return ratio;
+        }
 
-                public void setWidth(int width) {
-                    this.width = width;
-                }
+        public void setRatio(String ratio) {
+            this.ratio = ratio;
+        }
 
-                public int getHeight() {
-                    return height;
-                }
+        public String getUrl() {
+            return url;
+        }
 
-                public void setHeight(int height) {
-                    this.height = height;
-                }
-            }
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public int getWidth() {
+            return width;
+        }
+
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public void setHeight(int height) {
+            this.height = height;
         }
     }
 }

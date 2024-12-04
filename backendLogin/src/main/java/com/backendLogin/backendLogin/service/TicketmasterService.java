@@ -1,65 +1,70 @@
 package com.backendLogin.backendLogin.service;
 
-import java.util.List;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.backendLogin.backendLogin.model.TicketmasterEventResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class TicketmasterService {
 
-    @Value("${ticketmaster.api.url}")
-    private String apiUrl;
+    private static final String API_KEY = "pEcMNJSJ3LHWyJdLfjhfGyy4q7bO0XlD";
+    private static final String URL = "https://app.ticketmaster.com/discovery/v2/events.json";
 
-    @Value("${ticketmaster.api.key}")
-    private String apiKey;
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+
+    private static final Logger logger = LoggerFactory.getLogger(TicketmasterService.class);
 
     @Autowired
-    private final RestTemplate restTemplate;
-
-    public TicketmasterService(RestTemplate restTemplate) {
+    public TicketmasterService(RestTemplate restTemplate, ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
     }
 
-    public List<TicketmasterEventResponse.Embedded.Event> getEvents(String city) {
-        // Eliminar espacios en blanco y saltos de línea adicionales
-        city = city.trim(); // trim() elimina espacios al principio y al final
-
-        // Construcción de la URL con los parámetros de la consulta
-        String url = UriComponentsBuilder.fromHttpUrl(apiUrl + "/discovery/v2/events.json")
-                .queryParam("apikey", apiKey)
-                .queryParam("city", city)  // Ciudad sin saltos de línea ni espacios
+    public List<TicketmasterEventResponse.Event> getEvents(String city) {
+        // Construir la URL con los parámetros correctos
+        String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
+                .queryParam("apikey", API_KEY)
+                .queryParam("city", city)
                 .toUriString();
 
+        // Hacer la solicitud GET
+        ResponseEntity<String> response = restTemplate.exchange(
+                requestUrl, HttpMethod.GET, null, String.class); // Obtenemos la respuesta como String
+
+        // Imprimir la URL y la respuesta cruda para depuración
+        logger.debug("URL generada para la consulta: {}", requestUrl);
+        logger.debug("Respuesta cruda de Ticketmaster: {}", response.getBody());
+
+        // Procesar la respuesta
         try {
-            // Realizamos la solicitud GET y obtenemos la respuesta directamente como String
-            String jsonResponse = restTemplate.getForObject(url, String.class);
+            // Deserializar la respuesta cruda JSON a TicketmasterEventResponse
+            TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
-            // Imprimir la respuesta JSON completa para depuración
-            System.out.println("Respuesta completa de la API: " + jsonResponse);
-
-            // Deserializar la respuesta a TicketmasterEventResponse
-            TicketmasterEventResponse response = restTemplate.getForObject(url, TicketmasterEventResponse.class);
-
-            // Si la respuesta contiene eventos, los devolvemos
-            if (response != null && response.getEmbedded() != null && response.getEmbedded().getEvents() != null) {
-                return response.getEmbedded().getEvents();  // Accedemos correctamente a los eventos dentro de _embedded
+            // Comprobar si la respuesta contiene eventos
+            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null 
+                    && ticketmasterResponse.getEmbedded().getEvents() != null) {
+                return ticketmasterResponse.getEmbedded().getEvents();
             } else {
-                // Si no se encontraron eventos, devolver una lista vacía
-                return List.of();
+                logger.warn("No se encontraron eventos para la ciudad: {}", city);
+                return Collections.emptyList(); // Retorna una lista vacía si no hay eventos
             }
-        } catch (Exception e) {
-            // Manejo de errores
-            System.err.println("Error al realizar la solicitud: " + e.getMessage());
-            e.printStackTrace(); // Imprimir el stack trace para obtener más detalles del error
-            return List.of(); // En caso de error, devolver una lista vacía
+        } catch (JsonProcessingException e) {
+            logger.error("Error al procesar la respuesta JSON", e);
+            return Collections.emptyList();
         }
     }
-
-
 }
