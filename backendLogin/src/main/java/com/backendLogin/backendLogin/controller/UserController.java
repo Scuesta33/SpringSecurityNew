@@ -127,9 +127,19 @@ public class UserController {
     
     @PutMapping("/updateUser")
     public ResponseEntity<UserSec> updateUser(@RequestBody UserSecUpdateRequest updateRequest) {
-        try {
+    	try {
+            // Obtener el nombre de usuario desde el contexto de seguridad (decodificado desde el token JWT)
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName(); // El nombre de usuario proviene del token JWT
+
             // Llamar al servicio para actualizar el usuario
-            UserSec updatedUser = userService.updateUser(updateRequest.getUsername(), updateRequest.getNewPassword());
+            UserSec updatedUser = userService.updateUser(
+                username,         // Obtener el nombre de usuario del token JWT
+                updateRequest.getNewUsername(),
+                updateRequest.getNewPassword(),
+                updateRequest.getNewEmail()
+            );
+
             return ResponseEntity.ok(updatedUser);
         } catch (IllegalArgumentException e) {
             // Manejo de errores si el username es inválido
@@ -139,6 +149,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+
+
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteUser() {
         try {

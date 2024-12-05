@@ -1,16 +1,17 @@
 package com.backendLogin.backendLogin.dto;
 
 public class UserSecUpdateRequest {
-    private String username;
+    private String newUsername;
     private String newPassword;
+    private String newEmail;
 
     // Getters y Setters
-    public String getUsername() {
-        return username;
+    public String getNewUsername() {
+        return newUsername;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setNewUsername(String newUsername) {
+        this.newUsername = newUsername;
     }
 
     public String getNewPassword() {
@@ -20,5 +21,15 @@ public class UserSecUpdateRequest {
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
     }
+
+    public String getNewEmail() {
+        return newEmail;
+    }
+
+    public void setNewEmail(String newEmail) {
+        this.newEmail = newEmail;
+    }
 }
+
+
 

@@ -50,8 +50,9 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public UserSec updateUser(String username, String newPassword) throws Exception {
-        // Verificar si el nombre de usuario es nulo o vacío
+    public UserSec updateUser(String username, String newUsername, String newPassword, String newEmail) throws Exception {
+    	
+    	// Verificar si el nombre de usuario es nulo o vacío
         if (username == null || username.isEmpty()) {
             throw new IllegalArgumentException("Username cannot be null or empty");
         }
@@ -64,12 +65,32 @@ public class UserService implements IUserService {
 
         UserSec user = optionalUser.get();
 
-        // Si la nueva contraseña es proporcionada, encriptarla y actualizarla
+        // Si se proporciona un nuevo nombre de usuario, actualizarlo
+        if (newUsername != null && !newUsername.isEmpty() && !newUsername.equals(user.getUsername())) {
+            Optional<UserSec> existingUser = userRepository.findByUsername(newUsername);
+            if (existingUser.isPresent()) {
+                throw new IllegalArgumentException("Username already exists");
+            }
+            user.setUsername(newUsername); // Solo actualiza si el nombre de usuario es diferente
+        }
+
+        // Si se proporciona una nueva contraseña, encriptarla y actualizarla
         if (newPassword != null && !newPassword.isEmpty()) {
             user.setPassword(passwordEncoder.encode(newPassword));  // Asumimos que passwordEncoder está inyectado
         }
 
-        return userRepository.save(user);  // Guardar al usuario con los cambios
+        // Si se proporciona un nuevo correo electrónico, actualizarlo
+        if (newEmail != null && !newEmail.isEmpty() && !newEmail.equals(user.getEmail())) {
+            // Verificar si el nuevo correo electrónico está disponible
+            Optional<UserSec> existingEmailUser = userRepository.findByEmail(newEmail);
+            if (existingEmailUser.isPresent()) {
+                throw new IllegalArgumentException("Email already exists");
+            }
+            user.setEmail(newEmail);
+        }
+
+        // Guardar al usuario con los cambios
+        return userRepository.save(user);
     }
 
     @Override
@@ -161,6 +182,18 @@ public class UserService implements IUserService {
 	@Override
 	public Optional<UserSec> findByEmail(String email) {
 	    return userRepository.findByEmail(email); // Esto es correcto
+	}
+
+	@Override
+	public UserSec updateUser(String newUsername, String newPassword) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public UserSec updateUser(String newUsername, String newPassword, String newEmail) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

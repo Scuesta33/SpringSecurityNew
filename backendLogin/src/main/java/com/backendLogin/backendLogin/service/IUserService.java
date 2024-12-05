@@ -34,7 +34,7 @@ public interface IUserService {
  
  Optional<UserSec> findByName(String username);
 
-UserSec updateUser(Long id, String username, String password) throws Exception;
+
 
 UserSec updateUser(String newUsername, String newPassword) throws Exception;
 boolean deleteByUsernameAndPassword(String username, String password);
@@ -42,5 +42,13 @@ boolean deleteByUsernameAndPassword(String username, String password);
 boolean deleteByUsername(String username);
 boolean deleteUserById(Long id);
 Optional<UserSec> findByEmail(String email);
+
+
+
+UserSec updateUser( String newUsername, String newPassword, String newEmail) throws Exception;
+
+UserSec updateUser(String username, String newUsername, String newPassword, String newEmail) throws Exception;
+
+UserSec updateUser(Long id, String username, String password) throws Exception;
 }
 
