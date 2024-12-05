@@ -67,7 +67,7 @@ public class TicketmasterService {
             return Collections.emptyList();
         }
     }
-    
+    //Busqueda de eventos más populares en España
     public List<TicketmasterEventResponse.Event> getPopularEvents() {
         // Construir la URL con los parámetros correctos, incluyendo parámetro de popularidad
         String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
@@ -100,6 +100,42 @@ public class TicketmasterService {
             logger.error("Error al procesar la respuesta JSON", e);
             return Collections.emptyList();  // Retorna una lista vacía si hay error al procesar la respuesta
         }
+    }
+    
+    //Busqueda de eventos por keyword
+    public List<TicketmasterEventResponse.Event> searchEventsByKeyword(String keyword){
+    	//ConstruiR la URL con los parámetros concretos, incluyendo keyword
+    	String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
+    			.queryParam("apikey", API_KEY)
+    			.queryParam("keyword", keyword)
+    			.queryParam("size", 9)
+    			.toUriString();
+    	
+    	//hacer solicitud GET
+    	ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
+    	
+    	//respuesta cruda de depuración de url
+    	logger.debug("URL generada para la consulta: {}", requestUrl);
+    	logger.debug("Respuesta cruda de ticketmaster: {}", response.getBody());
+    	
+    	//procesar respuesta
+    	
+    	try {
+    		//Deserializar la respuesta cruda JSON a TicketmasterEventResponse
+    		TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
+
+            // Comprobar si la respuesta contiene eventos
+            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null 
+                    && ticketmasterResponse.getEmbedded().getEvents() != null) {
+                return ticketmasterResponse.getEmbedded().getEvents();
+            } else {
+                logger.warn("No se encontraron eventos para la palabra clave: {}", keyword);
+                return Collections.emptyList(); // Retorna una lista vacía si no hay eventos
+            }
+        } catch (JsonProcessingException e) {
+            logger.error("Error al procesar la respuesta JSON", e);
+            return Collections.emptyList();
+    	}
     }
 
 }

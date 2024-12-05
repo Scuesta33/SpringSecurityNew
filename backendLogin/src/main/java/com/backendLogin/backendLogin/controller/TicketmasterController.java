@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -42,4 +43,20 @@ public class TicketmasterController {
     	}
     	return ResponseEntity.ok(events);
     }
+    //nuevo endpoint para buscar eventos por palabra clave
+    //http://localhost:8080/api/events/search?keyword=     esta sería la url
+    @GetMapping("/search")
+    public ResponseEntity<List<TicketmasterEventResponse.Event>> searchEventsByKeyword(@RequestParam String keyword){
+    	//llamar al servicio para obtener los eventos por palabra clave
+    	List<TicketmasterEventResponse.Event> events = ticketmasterService.searchEventsByKeyword(keyword);
+    	
+    	//Si hay eventos que los devuelva con un código 200 sino devuelve una respuesta vacia 204
+    	if (!events.isEmpty()) {
+    		return ResponseEntity.ok(events);
+    	} else {
+    		return ResponseEntity.noContent().build();
+    	}
+    	
+    }
+    
 }
