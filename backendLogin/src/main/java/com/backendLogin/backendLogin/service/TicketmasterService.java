@@ -31,6 +31,8 @@ public class TicketmasterService {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
     }
+    
+    
 
     public List<TicketmasterEventResponse.Event> getEvents(String city) {
         // Construir la URL con los parámetros correctos
@@ -65,4 +67,39 @@ public class TicketmasterService {
             return Collections.emptyList();
         }
     }
+    
+    public List<TicketmasterEventResponse.Event> getPopularEvents() {
+        // Construir la URL con los parámetros correctos, incluyendo parámetro de popularidad
+        String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
+                .queryParam("apikey", API_KEY)  // Correcto: "apikey" debe ir en minúsculas
+                .queryParam("sort", "relevance,desc")  // Ordenar por relevancia (también puede implicar popularidad)
+                .queryParam("size", 9)  // Limitar a 10 eventos más populares
+                .queryParam("countryCode", "ES")  // Filtrar por España
+                .toUriString();
+
+        // Hacer la solicitud GET
+        ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
+
+        // Imprimir la URL y la respuesta cruda para depuración
+        logger.debug("URL generada para la consulta: {}", requestUrl);
+        logger.debug("Respuesta cruda de Ticketmaster: {}", response.getBody());
+
+        try {
+            // Deserializar la respuesta cruda JSON a TicketmasterEventResponse
+            TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
+
+            // Comprobar si la respuesta contiene eventos
+            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
+                    && ticketmasterResponse.getEmbedded().getEvents() != null) {
+                return ticketmasterResponse.getEmbedded().getEvents();  // Retorna los eventos si están presentes
+            } else {
+                logger.warn("No se encontraron eventos populares.");
+                return Collections.emptyList();  // Retorna una lista vacía si no hay eventos populares
+            }
+        } catch (JsonProcessingException e) {
+            logger.error("Error al procesar la respuesta JSON", e);
+            return Collections.emptyList();  // Retorna una lista vacía si hay error al procesar la respuesta
+        }
+    }
+
 }

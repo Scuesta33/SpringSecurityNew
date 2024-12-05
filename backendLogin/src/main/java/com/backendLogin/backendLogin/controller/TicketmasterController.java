@@ -32,4 +32,14 @@ public class TicketmasterController {
 
         return ResponseEntity.ok(events);  // 200 OK con los eventos encontrados
     }
+    
+    @GetMapping("/popular")
+    public ResponseEntity<List<TicketmasterEventResponse.Event>> getPopularEvents(){
+    	List<TicketmasterEventResponse.Event> events = ticketmasterService.getPopularEvents();
+    	
+    	if(events.isEmpty()) {
+    		return ResponseEntity.noContent().build();
+    	}
+    	return ResponseEntity.ok(events);
+    }
 }
