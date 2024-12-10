@@ -31,9 +31,8 @@ public class TicketmasterService {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
     }
-    
-    
 
+    // Método que obtiene los eventos por ciudad
     public List<TicketmasterEventResponse.Event> getEvents(String city) {
         // Construir la URL con los parámetros correctos
         String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
@@ -55,9 +54,18 @@ public class TicketmasterService {
             TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
             // Comprobar si la respuesta contiene eventos
-            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null 
-                    && ticketmasterResponse.getEmbedded().getEvents() != null) {
-                return ticketmasterResponse.getEmbedded().getEvents();
+            if (ticketmasterResponse != null && ticketmasterResponse.get_embedded() != null 
+                    && ticketmasterResponse.get_embedded().getEvents() != null) {
+                List<TicketmasterEventResponse.Event> events = ticketmasterResponse.get_embedded().getEvents();
+
+                // Asegurarse de que cada evento tenga solo la primera imagen (si existe)
+                for (TicketmasterEventResponse.Event event : events) {
+                    if (event.getImages() != null && !event.getImages().isEmpty()) {
+                        event.setImages(Collections.singletonList(event.getImages().get(0))); // Solo la primera imagen
+                    }
+                }
+
+                return events;
             } else {
                 logger.warn("No se encontraron eventos para la ciudad: {}", city);
                 return Collections.emptyList(); // Retorna una lista vacía si no hay eventos
@@ -67,13 +75,14 @@ public class TicketmasterService {
             return Collections.emptyList();
         }
     }
-    //Busqueda de eventos más populares en España
+
+    // Método para obtener eventos populares en España
     public List<TicketmasterEventResponse.Event> getPopularEvents() {
         // Construir la URL con los parámetros correctos, incluyendo parámetro de popularidad
         String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
                 .queryParam("apikey", API_KEY)  // Correcto: "apikey" debe ir en minúsculas
                 .queryParam("sort", "relevance,desc")  // Ordenar por relevancia (también puede implicar popularidad)
-                .queryParam("size", 9)  // Limitar a 10 eventos más populares
+                .queryParam("size", 9)  // Limitar a 9 eventos más populares
                 .queryParam("countryCode", "ES")  // Filtrar por España
                 .toUriString();
 
@@ -89,9 +98,18 @@ public class TicketmasterService {
             TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
             // Comprobar si la respuesta contiene eventos
-            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
-                    && ticketmasterResponse.getEmbedded().getEvents() != null) {
-                return ticketmasterResponse.getEmbedded().getEvents();  // Retorna los eventos si están presentes
+            if (ticketmasterResponse != null && ticketmasterResponse.get_embedded() != null
+                    && ticketmasterResponse.get_embedded().getEvents() != null) {
+                List<TicketmasterEventResponse.Event> events = ticketmasterResponse.get_embedded().getEvents();
+
+                // Asegurarse de que cada evento tenga solo la primera imagen (si existe)
+                for (TicketmasterEventResponse.Event event : events) {
+                    if (event.getImages() != null && !event.getImages().isEmpty()) {
+                        event.setImages(Collections.singletonList(event.getImages().get(0))); // Solo la primera imagen
+                    }
+                }
+
+                return events;  // Retorna los eventos si están presentes
             } else {
                 logger.warn("No se encontraron eventos populares.");
                 return Collections.emptyList();  // Retorna una lista vacía si no hay eventos populares
@@ -101,33 +119,41 @@ public class TicketmasterService {
             return Collections.emptyList();  // Retorna una lista vacía si hay error al procesar la respuesta
         }
     }
-    
-    //Busqueda de eventos por keyword
+
+    // Método para búsqueda de eventos por palabra clave
     public List<TicketmasterEventResponse.Event> searchEventsByKeyword(String keyword){
-    	//ConstruiR la URL con los parámetros concretos, incluyendo keyword
-    	String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
-    			.queryParam("apikey", API_KEY)
-    			.queryParam("keyword", keyword)
-    			.queryParam("size", 9)
-    			.toUriString();
-    	
-    	//hacer solicitud GET
-    	ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
-    	
-    	//respuesta cruda de depuración de url
-    	logger.debug("URL generada para la consulta: {}", requestUrl);
-    	logger.debug("Respuesta cruda de ticketmaster: {}", response.getBody());
-    	
-    	//procesar respuesta
-    	
-    	try {
-    		//Deserializar la respuesta cruda JSON a TicketmasterEventResponse
-    		TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
+        // Construir la URL con los parámetros correctos, incluyendo keyword
+        String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
+                .queryParam("apikey", API_KEY)
+                .queryParam("keyword", keyword)
+                .queryParam("size", 9)
+                .toUriString();
+
+        // Hacer solicitud GET
+        ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
+
+        // Respuesta cruda de depuración de url
+        logger.debug("URL generada para la consulta: {}", requestUrl);
+        logger.debug("Respuesta cruda de Ticketmaster: {}", response.getBody());
+
+        // Procesar la respuesta
+        try {
+            // Deserializar la respuesta cruda JSON a TicketmasterEventResponse
+            TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
             // Comprobar si la respuesta contiene eventos
-            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null 
-                    && ticketmasterResponse.getEmbedded().getEvents() != null) {
-                return ticketmasterResponse.getEmbedded().getEvents();
+            if (ticketmasterResponse != null && ticketmasterResponse.get_embedded() != null 
+                    && ticketmasterResponse.get_embedded().getEvents() != null) {
+                List<TicketmasterEventResponse.Event> events = ticketmasterResponse.get_embedded().getEvents();
+
+                // Asegurarse de que cada evento tenga solo la primera imagen (si existe)
+                for (TicketmasterEventResponse.Event event : events) {
+                    if (event.getImages() != null && !event.getImages().isEmpty()) {
+                        event.setImages(Collections.singletonList(event.getImages().get(0))); // Solo la primera imagen
+                    }
+                }
+
+                return events;  // Retorna los eventos si están presentes
             } else {
                 logger.warn("No se encontraron eventos para la palabra clave: {}", keyword);
                 return Collections.emptyList(); // Retorna una lista vacía si no hay eventos
@@ -135,7 +161,6 @@ public class TicketmasterService {
         } catch (JsonProcessingException e) {
             logger.error("Error al procesar la respuesta JSON", e);
             return Collections.emptyList();
-    	}
+        }
     }
-
 }
