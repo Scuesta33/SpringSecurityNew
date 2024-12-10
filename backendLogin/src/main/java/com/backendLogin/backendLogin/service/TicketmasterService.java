@@ -13,8 +13,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-
+import java.util.Set;
+import java.util.stream.Collectors;
 @Service
 public class TicketmasterService {
 
@@ -65,7 +67,10 @@ public class TicketmasterService {
                     }
                 }
 
-                return events;
+                // Eliminar eventos duplicados basados en el nombre
+                List<TicketmasterEventResponse.Event> uniqueEvents = removeDuplicateEvents(events);
+
+                return uniqueEvents;
             } else {
                 logger.warn("No se encontraron eventos para la ciudad: {}", city);
                 return Collections.emptyList(); // Retorna una lista vacía si no hay eventos
@@ -109,7 +114,10 @@ public class TicketmasterService {
                     }
                 }
 
-                return events;  // Retorna los eventos si están presentes
+                // Eliminar eventos duplicados basados en el nombre
+                List<TicketmasterEventResponse.Event> uniqueEvents = removeDuplicateEvents(events);
+
+                return uniqueEvents;  // Retorna los eventos únicos si están presentes
             } else {
                 logger.warn("No se encontraron eventos populares.");
                 return Collections.emptyList();  // Retorna una lista vacía si no hay eventos populares
@@ -153,7 +161,10 @@ public class TicketmasterService {
                     }
                 }
 
-                return events;  // Retorna los eventos si están presentes
+                // Eliminar eventos duplicados basados en el nombre
+                List<TicketmasterEventResponse.Event> uniqueEvents = removeDuplicateEvents(events);
+
+                return uniqueEvents;  // Retorna los eventos únicos si están presentes
             } else {
                 logger.warn("No se encontraron eventos para la palabra clave: {}", keyword);
                 return Collections.emptyList(); // Retorna una lista vacía si no hay eventos
@@ -162,5 +173,16 @@ public class TicketmasterService {
             logger.error("Error al procesar la respuesta JSON", e);
             return Collections.emptyList();
         }
+    }
+
+    // Método para eliminar duplicados por nombre
+    private List<TicketmasterEventResponse.Event> removeDuplicateEvents(List<TicketmasterEventResponse.Event> events) {
+        // Utiliza un Set para mantener los eventos únicos basados en el nombre
+        Set<String> eventNames = new HashSet<>();
+        List<TicketmasterEventResponse.Event> uniqueEvents = events.stream()
+                .filter(event -> eventNames.add(event.getName())) // Si el nombre ya existe en el Set, lo ignora
+                .collect(Collectors.toList());
+
+        return uniqueEvents;
     }
 }
