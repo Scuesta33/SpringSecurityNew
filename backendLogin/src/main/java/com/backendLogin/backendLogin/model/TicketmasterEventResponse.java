@@ -57,6 +57,8 @@ public class TicketmasterEventResponse {
         private List<Classification> classifications;
         private PriceRange[] priceRanges;
         private Venue venue; // Mueve Venue aquí
+        private Double latitude;  // Latitud añadida
+        private Double longitude; // Longitud añadida
 
         // Getters y setters
         public String getId() {
@@ -137,6 +139,23 @@ public class TicketmasterEventResponse {
 
         public void setVenue(Venue venue) {
             this.venue = venue;
+        }
+
+        // Getters y setters para latitud y longitud
+        public Double getLatitude() {
+            return latitude;
+        }
+
+        public void setLatitude(Double latitude) {
+            this.latitude = latitude;
+        }
+
+        public Double getLongitude() {
+            return longitude;
+        }
+
+        public void setLongitude(Double longitude) {
+            this.longitude = longitude;
         }
     }
 
@@ -461,24 +480,55 @@ public class TicketmasterEventResponse {
     }
 
     public static class Location {
-        private String longitude;
-        private String latitude;
+        private Double longitude;  // Cambiar a Double
+        private Double latitude;   // Cambiar a Double
 
         // Getters y setters
-        public String getLongitude() {
+        public Double getLongitude() {
             return longitude;
         }
 
-        public void setLongitude(String longitude) {
+        public void setLongitude(Double longitude) {
             this.longitude = longitude;
         }
 
-        public String getLatitude() {
+        public Double getLatitude() {
             return latitude;
         }
 
-        public void setLatitude(String latitude) {
+        public void setLatitude(Double latitude) {
             this.latitude = latitude;
+        }
+    }
+
+    public static class Address {
+        private String line1;
+        private String line2;
+        private String line3;
+
+        // Getters y setters
+        public String getLine1() {
+            return line1;
+        }
+
+        public void setLine1(String line1) {
+            this.line1 = line1;
+        }
+
+        public String getLine2() {
+            return line2;
+        }
+
+        public void setLine2(String line2) {
+            this.line2 = line2;
+        }
+
+        public String getLine3() {
+            return line3;
+        }
+
+        public void setLine3(String line3) {
+            this.line3 = line3;
         }
     }
 
@@ -510,7 +560,6 @@ public class TicketmasterEventResponse {
 
     public static class Country {
         private String name;
-        private String countryCode;
 
         // Getters y setters
         public String getName() {
@@ -519,27 +568,6 @@ public class TicketmasterEventResponse {
 
         public void setName(String name) {
             this.name = name;
-        }
-
-        public String getCountryCode() {
-            return countryCode;
-        }
-
-        public void setCountryCode(String countryCode) {
-            this.countryCode = countryCode;
-        }
-    }
-
-    public static class Address {
-        private String line1;
-
-        // Getters y setters
-        public String getLine1() {
-            return line1;
-        }
-
-        public void setLine1(String line1) {
-            this.line1 = line1;
         }
     }
 }

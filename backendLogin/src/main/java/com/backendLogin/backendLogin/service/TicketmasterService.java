@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 @Service
 public class TicketmasterService {
 
@@ -65,6 +66,16 @@ public class TicketmasterService {
                     if (event.getImages() != null && !event.getImages().isEmpty()) {
                         event.setImages(Collections.singletonList(event.getImages().get(0))); // Solo la primera imagen
                     }
+
+                    // Verificar y mostrar las coordenadas del evento en el log
+                    if (event.getVenue() != null && event.getVenue().getLocation() != null) {
+                        Double latitude = event.getVenue().getLocation().getLatitude();
+                        Double longitude = event.getVenue().getLocation().getLongitude();
+                        
+                        if (latitude != null && longitude != null) {
+                            logger.debug("Evento: {}, Latitud: {}, Longitud: {}", event.getName(), latitude, longitude);
+                        }
+                    }
                 }
 
                 // Eliminar eventos duplicados basados en el nombre
@@ -76,7 +87,7 @@ public class TicketmasterService {
                 return Collections.emptyList(); // Retorna una lista vacía si no hay eventos
             }
         } catch (JsonProcessingException e) {
-            logger.error("Error al procesar la respuesta JSON", e);
+            logger.error("Error al procesar la respuesta JSON para la URL: {}", requestUrl, e);
             return Collections.emptyList();
         }
     }
@@ -112,6 +123,16 @@ public class TicketmasterService {
                     if (event.getImages() != null && !event.getImages().isEmpty()) {
                         event.setImages(Collections.singletonList(event.getImages().get(0))); // Solo la primera imagen
                     }
+
+                    // Verificar y mostrar las coordenadas del evento en el log
+                    if (event.getVenue() != null && event.getVenue().getLocation() != null) {
+                        Double latitude = event.getVenue().getLocation().getLatitude();
+                        Double longitude = event.getVenue().getLocation().getLongitude();
+                        
+                        if (latitude != null && longitude != null) {
+                            logger.debug("Evento: {}, Latitud: {}, Longitud: {}", event.getName(), latitude, longitude);
+                        }
+                    }
                 }
 
                 // Eliminar eventos duplicados basados en el nombre
@@ -123,7 +144,7 @@ public class TicketmasterService {
                 return Collections.emptyList();  // Retorna una lista vacía si no hay eventos populares
             }
         } catch (JsonProcessingException e) {
-            logger.error("Error al procesar la respuesta JSON", e);
+            logger.error("Error al procesar la respuesta JSON para la URL: {}", requestUrl, e);
             return Collections.emptyList();  // Retorna una lista vacía si hay error al procesar la respuesta
         }
     }
@@ -159,6 +180,16 @@ public class TicketmasterService {
                     if (event.getImages() != null && !event.getImages().isEmpty()) {
                         event.setImages(Collections.singletonList(event.getImages().get(0))); // Solo la primera imagen
                     }
+
+                    // Verificar y mostrar las coordenadas del evento en el log
+                    if (event.getVenue() != null && event.getVenue().getLocation() != null) {
+                        Double latitude = event.getVenue().getLocation().getLatitude();
+                        Double longitude = event.getVenue().getLocation().getLongitude();
+                        
+                        if (latitude != null && longitude != null) {
+                            logger.debug("Evento: {}, Latitud: {}, Longitud: {}", event.getName(), latitude, longitude);
+                        }
+                    }
                 }
 
                 // Eliminar eventos duplicados basados en el nombre
@@ -167,22 +198,19 @@ public class TicketmasterService {
                 return uniqueEvents;  // Retorna los eventos únicos si están presentes
             } else {
                 logger.warn("No se encontraron eventos para la palabra clave: {}", keyword);
-                return Collections.emptyList(); // Retorna una lista vacía si no hay eventos
+                return Collections.emptyList();  // Retorna una lista vacía si no hay eventos
             }
         } catch (JsonProcessingException e) {
-            logger.error("Error al procesar la respuesta JSON", e);
-            return Collections.emptyList();
+            logger.error("Error al procesar la respuesta JSON para la URL: {}", requestUrl, e);
+            return Collections.emptyList();  // Retorna una lista vacía si hay error al procesar la respuesta
         }
     }
 
-    // Método para eliminar duplicados por nombre
+    // Método para eliminar eventos duplicados basados en el nombre
     private List<TicketmasterEventResponse.Event> removeDuplicateEvents(List<TicketmasterEventResponse.Event> events) {
-        // Utiliza un Set para mantener los eventos únicos basados en el nombre
         Set<String> eventNames = new HashSet<>();
-        List<TicketmasterEventResponse.Event> uniqueEvents = events.stream()
-                .filter(event -> eventNames.add(event.getName())) // Si el nombre ya existe en el Set, lo ignora
+        return events.stream()
+                .filter(event -> eventNames.add(event.getName())) // Filtra duplicados por el nombre del evento
                 .collect(Collectors.toList());
-
-        return uniqueEvents;
     }
 }
