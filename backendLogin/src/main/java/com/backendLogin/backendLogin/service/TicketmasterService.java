@@ -1,3 +1,4 @@
+
 package com.backendLogin.backendLogin.service;
 
 import com.backendLogin.backendLogin.model.TicketmasterEventResponse;
@@ -36,7 +37,7 @@ public class TicketmasterService {
     }
 
     // Método que obtiene los eventos por ciudad
-    public List<TicketmasterEventResponse.Event> getEvents(String city) {
+    public List<TicketmasterEventResponse.Embedded.Event> getEvents(String city) {
         // Construir la URL con los parámetros correctos
         String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
                 .queryParam("apikey", API_KEY)
@@ -57,12 +58,12 @@ public class TicketmasterService {
             TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
             // Comprobar si la respuesta contiene eventos
-            if (ticketmasterResponse != null && ticketmasterResponse.get_embedded() != null 
-                    && ticketmasterResponse.get_embedded().getEvents() != null) {
-                List<TicketmasterEventResponse.Event> events = ticketmasterResponse.get_embedded().getEvents();
+            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null 
+                    && ticketmasterResponse.getEmbedded().getEvents() != null) {
+                List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterResponse.getEmbedded().getEvents();
 
                 // Asegurarse de que cada evento tenga solo la primera imagen (si existe)
-                for (TicketmasterEventResponse.Event event : events) {
+                for (TicketmasterEventResponse.Embedded.Event event : events) {
                     if (event.getImages() != null && !event.getImages().isEmpty()) {
                         event.setImages(Collections.singletonList(event.getImages().get(0))); // Solo la primera imagen
                     }
@@ -79,7 +80,7 @@ public class TicketmasterService {
                 }
 
                 // Eliminar eventos duplicados basados en el nombre
-                List<TicketmasterEventResponse.Event> uniqueEvents = removeDuplicateEvents(events);
+                List<TicketmasterEventResponse.Embedded.Event> uniqueEvents = removeDuplicateEvents(events);
 
                 return uniqueEvents;
             } else {
@@ -93,7 +94,7 @@ public class TicketmasterService {
     }
 
     // Método para obtener eventos populares en España
-    public List<TicketmasterEventResponse.Event> getPopularEvents() {
+    public List<TicketmasterEventResponse.Embedded.Event> getPopularEvents() {
         // Construir la URL con los parámetros correctos, incluyendo parámetro de popularidad
         String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
                 .queryParam("apikey", API_KEY)  // Correcto: "apikey" debe ir en minúsculas
@@ -114,12 +115,12 @@ public class TicketmasterService {
             TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
             // Comprobar si la respuesta contiene eventos
-            if (ticketmasterResponse != null && ticketmasterResponse.get_embedded() != null
-                    && ticketmasterResponse.get_embedded().getEvents() != null) {
-                List<TicketmasterEventResponse.Event> events = ticketmasterResponse.get_embedded().getEvents();
+            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
+                    && ticketmasterResponse.getEmbedded().getEvents() != null) {
+                List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterResponse.getEmbedded().getEvents();
 
                 // Asegurarse de que cada evento tenga solo la primera imagen (si existe)
-                for (TicketmasterEventResponse.Event event : events) {
+                for (TicketmasterEventResponse.Embedded.Event event : events) {
                     if (event.getImages() != null && !event.getImages().isEmpty()) {
                         event.setImages(Collections.singletonList(event.getImages().get(0))); // Solo la primera imagen
                     }
@@ -136,7 +137,7 @@ public class TicketmasterService {
                 }
 
                 // Eliminar eventos duplicados basados en el nombre
-                List<TicketmasterEventResponse.Event> uniqueEvents = removeDuplicateEvents(events);
+                List<TicketmasterEventResponse.Embedded.Event> uniqueEvents = removeDuplicateEvents(events);
 
                 return uniqueEvents;  // Retorna los eventos únicos si están presentes
             } else {
@@ -150,7 +151,7 @@ public class TicketmasterService {
     }
 
     // Método para búsqueda de eventos por palabra clave
-    public List<TicketmasterEventResponse.Event> searchEventsByKeyword(String keyword){
+    public List<TicketmasterEventResponse.Embedded.Event> searchEventsByKeyword(String keyword){
         // Construir la URL con los parámetros correctos, incluyendo keyword
         String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
                 .queryParam("apikey", API_KEY)
@@ -171,12 +172,12 @@ public class TicketmasterService {
             TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
             // Comprobar si la respuesta contiene eventos
-            if (ticketmasterResponse != null && ticketmasterResponse.get_embedded() != null 
-                    && ticketmasterResponse.get_embedded().getEvents() != null) {
-                List<TicketmasterEventResponse.Event> events = ticketmasterResponse.get_embedded().getEvents();
+            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null 
+                    && ticketmasterResponse.getEmbedded().getEvents() != null) {
+                List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterResponse.getEmbedded().getEvents();
 
                 // Asegurarse de que cada evento tenga solo la primera imagen (si existe)
-                for (TicketmasterEventResponse.Event event : events) {
+                for (TicketmasterEventResponse.Embedded.Event event : events) {
                     if (event.getImages() != null && !event.getImages().isEmpty()) {
                         event.setImages(Collections.singletonList(event.getImages().get(0))); // Solo la primera imagen
                     }
@@ -193,7 +194,7 @@ public class TicketmasterService {
                 }
 
                 // Eliminar eventos duplicados basados en el nombre
-                List<TicketmasterEventResponse.Event> uniqueEvents = removeDuplicateEvents(events);
+                List<TicketmasterEventResponse.Embedded.Event> uniqueEvents = removeDuplicateEvents(events);
 
                 return uniqueEvents;  // Retorna los eventos únicos si están presentes
             } else {
@@ -207,10 +208,43 @@ public class TicketmasterService {
     }
 
     // Método para eliminar eventos duplicados basados en el nombre
-    private List<TicketmasterEventResponse.Event> removeDuplicateEvents(List<TicketmasterEventResponse.Event> events) {
+    private List<TicketmasterEventResponse.Embedded.Event> removeDuplicateEvents(List<TicketmasterEventResponse.Embedded.Event> events) {
         Set<String> eventNames = new HashSet<>();
         return events.stream()
                 .filter(event -> eventNames.add(event.getName())) // Filtra duplicados por el nombre del evento
                 .collect(Collectors.toList());
+    }
+
+    public TicketmasterEventResponse.Embedded.Event getEventDetails(String id) {
+        // Construir la URL correctamente con el id del evento
+        String requestUrl = UriComponentsBuilder.fromHttpUrl("https://app.ticketmaster.com/discovery/v2/events/" + id + ".json")
+                .queryParam("apikey", API_KEY)
+                .toUriString();
+
+        // Imprimir la URL generada en el log para depuración
+        logger.debug("URL generada para el evento: {}", requestUrl);
+
+        // Hacer la solicitud GET
+        ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
+
+        // Procesar la respuesta
+        try {
+            // Deserializar la respuesta JSON a TicketmasterEventResponse
+            TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
+
+            // Comprobar si la respuesta contiene el evento
+            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
+                    && ticketmasterResponse.getEmbedded().getEvents() != null && !ticketmasterResponse.getEmbedded().getEvents().isEmpty()) {
+                // Si se encuentra el evento, retornarlo
+                return ticketmasterResponse.getEmbedded().getEvents().get(0);  
+            } else {
+                logger.warn("No se encontró el evento con el ID: {}", id);  // Si no se encuentra el evento
+                return null;
+            }
+        } catch (JsonProcessingException e) {
+            // En caso de error en el procesamiento del JSON, logueamos el error
+            logger.error("Error al procesar la respuesta JSON para el evento con ID: {}", id, e);
+            return null;  // Retorna null si hay error de procesamiento JSON
+        }
     }
 }

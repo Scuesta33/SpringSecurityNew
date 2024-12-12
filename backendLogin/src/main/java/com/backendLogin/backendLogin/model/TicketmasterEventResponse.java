@@ -1,42 +1,27 @@
 package com.backendLogin.backendLogin.model;
-
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class TicketmasterEventResponse {
 
-    private Embedded _embedded;
-    private int _total;
-    private int _filtered;
+    @JsonProperty("_embedded")
+    private Embedded embedded;
 
-    // Getters y setters     
-    public Embedded get_embedded() {
-        return _embedded;
+    // Getters and Setters
+    public Embedded getEmbedded() {
+        return embedded;
     }
 
-    public void set_embedded(Embedded _embedded) {
-        this._embedded = _embedded;
-    }
-
-    public int get_total() {
-        return _total;
-    }
-
-    public void set_total(int _total) {
-        this._total = _total;
-    }
-
-    public int get_filtered() {
-        return _filtered;
-    }
-
-    public void set_filtered(int _filtered) {
-        this._filtered = _filtered;
+    public void setEmbedded(Embedded embedded) {
+        this.embedded = embedded;
     }
 
     public static class Embedded {
+
         private List<Event> events;
 
-        // Getters y setters
+        // Getters and Setters
         public List<Event> getEvents() {
             return events;
         }
@@ -44,274 +29,26 @@ public class TicketmasterEventResponse {
         public void setEvents(List<Event> events) {
             this.events = events;
         }
-    }
 
-    public static class Event {
-        private String id;
-        private String name;
-        private String url;
-        private String locale;
-        private List<Image> images;
-        private Sales sales;
-        private Dates dates;
-        private List<Classification> classifications;
-        private PriceRange[] priceRanges;
-        private Venue venue; // Mueve Venue aquí
-        private Double latitude;  // Latitud añadida
-        private Double longitude; // Longitud añadida
+        public static class Event {
 
-        // Getters y setters
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
-
-        public String getLocale() {
-            return locale;
-        }
-
-        public void setLocale(String locale) {
-            this.locale = locale;
-        }
-
-        public List<Image> getImages() {
-            return images;
-        }
-
-        public void setImages(List<Image> images) {
-            this.images = images;
-        }
-
-        public Sales getSales() {
-            return sales;
-        }
-
-        public void setSales(Sales sales) {
-            this.sales = sales;
-        }
-
-        public Dates getDates() {
-            return dates;
-        }
-
-        public void setDates(Dates dates) {
-            this.dates = dates;
-        }
-
-        public List<Classification> getClassifications() {
-            return classifications;
-        }
-
-        public void setClassifications(List<Classification> classifications) {
-            this.classifications = classifications;
-        }
-
-        public PriceRange[] getPriceRanges() {
-            return priceRanges;
-        }
-
-        public void setPriceRanges(PriceRange[] priceRanges) {
-            this.priceRanges = priceRanges;
-        }
-
-        public Venue getVenue() {
-            return venue;
-        }
-
-        public void setVenue(Venue venue) {
-            this.venue = venue;
-        }
-
-        // Getters y setters para latitud y longitud
-        public Double getLatitude() {
-            return latitude;
-        }
-
-        public void setLatitude(Double latitude) {
-            this.latitude = latitude;
-        }
-
-        public Double getLongitude() {
-            return longitude;
-        }
-
-        public void setLongitude(Double longitude) {
-            this.longitude = longitude;
-        }
-    }
-
-    public static class Image {
-        private String ratio;
-        private String url;
-        private int width;
-        private int height;
-        private boolean fallback;
-
-        // Getters y setters
-        public String getRatio() {
-            return ratio;
-        }
-
-        public void setRatio(String ratio) {
-            this.ratio = ratio;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
-
-        public int getWidth() {
-            return width;
-        }
-
-        public void setWidth(int width) {
-            this.width = width;
-        }
-
-        public int getHeight() {
-            return height;
-        }
-
-        public void setHeight(int height) {
-            this.height = height;
-        }
-
-        public boolean isFallback() {
-            return fallback;
-        }
-
-        public void setFallback(boolean fallback) {
-            this.fallback = fallback;
-        }
-    }
-
-    public static class Sales {
-        private PublicSale publicSale;
-
-        // Getters y setters
-        public PublicSale getPublicSale() {
-            return publicSale;
-        }
-
-        public void setPublicSale(PublicSale publicSale) {
-            this.publicSale = publicSale;
-        }
-
-        public static class PublicSale {
-            private String startDateTime;
-            private String endDateTime;
-
-            // Getters y setters
-            public String getStartDateTime() {
-                return startDateTime;
-            }
-
-            public void setStartDateTime(String startDateTime) {
-                this.startDateTime = startDateTime;
-            }
-
-            public String getEndDateTime() {
-                return endDateTime;
-            }
-
-            public void setEndDateTime(String endDateTime) {
-                this.endDateTime = endDateTime;
-            }
-        }
-    }
-
-    public static class Dates {
-        private Start start;
-
-        // Getters y setters
-        public Start getStart() {
-            return start;
-        }
-
-        public void setStart(Start start) {
-            this.start = start;
-        }
-
-        public static class Start {
-            private String localDate;
-            private String localTime;
-
-            // Getters y setters
-            public String getLocalDate() {
-                return localDate;
-            }
-
-            public void setLocalDate(String localDate) {
-                this.localDate = localDate;
-            }
-
-            public String getLocalTime() {
-                return localTime;
-            }
-
-            public void setLocalTime(String localTime) {
-                this.localTime = localTime;
-            }
-        }
-    }
-
-    public static class Classification {
-        private boolean primary;
-        private Segment segment;
-        private Genre genre;
-
-        // Getters y setters
-        public boolean isPrimary() {
-            return primary;
-        }
-
-        public void setPrimary(boolean primary) {
-            this.primary = primary;
-        }
-
-        public Segment getSegment() {
-            return segment;
-        }
-
-        public void setSegment(Segment segment) {
-            this.segment = segment;
-        }
-
-        public Genre getGenre() {
-            return genre;
-        }
-
-        public void setGenre(Genre genre) {
-            this.genre = genre;
-        }
-
-        public static class Segment {
             private String name;
-
-            // Getters y setters
+            private String type;
+            private String id;
+            private boolean test;
+            private String url;
+            private String locale;
+            private List<Image> images;
+            private Sales sales;
+            private Dates dates;
+            private List<Classification> classifications;
+            private Promoter promoter;
+            private List<Promoter> promoters;
+            private List<PriceRange> priceRanges;
+            private Seatmap seatmap;
+            private Links _links;
+            private Venue venue;
+            // Getters and Setters
             public String getName() {
                 return name;
             }
@@ -319,255 +56,645 @@ public class TicketmasterEventResponse {
             public void setName(String name) {
                 this.name = name;
             }
-        }
 
-        public static class Genre {
-            private String name;
-
-            // Getters y setters
-            public String getName() {
-                return name;
+            public String getType() {
+                return type;
             }
 
-            public void setName(String name) {
-                this.name = name;
+            public void setType(String type) {
+                this.type = type;
             }
-        }
-    }
 
-    public static class PriceRange {
-        private String type;
-        private String currency;
-        private double min;
-        private double max;
+            public String getId() {
+                return id;
+            }
 
-        // Getters y setters
-        public String getType() {
-            return type;
-        }
+            public void setId(String id) {
+                this.id = id;
+            }
 
-        public void setType(String type) {
-            this.type = type;
-        }
+            public boolean isTest() {
+                return test;
+            }
 
-        public String getCurrency() {
-            return currency;
-        }
+            public void setTest(boolean test) {
+                this.test = test;
+            }
 
-        public void setCurrency(String currency) {
-            this.currency = currency;
-        }
+            public String getUrl() {
+                return url;
+            }
 
-        public double getMin() {
-            return min;
-        }
+            public void setUrl(String url) {
+                this.url = url;
+            }
 
-        public void setMin(double min) {
-            this.min = min;
-        }
+            public String getLocale() {
+                return locale;
+            }
 
-        public double getMax() {
-            return max;
-        }
+            public void setLocale(String locale) {
+                this.locale = locale;
+            }
 
-        public void setMax(double max) {
-            this.max = max;
-        }
-    }
+            public List<Image> getImages() {
+                return images;
+            }
 
-    // Clase Venue movida fuera de PriceRange y colocada en Event
-    public static class Venue {
-        private String name;
-        private String type;
-        private String id;
-        private String url;
-        private String postalCode;
-        private String timezone;
-        private City city;
-        private State state;
-        private Country country;
-        private Address address;
-        private Location location; // Ubicación
+            public void setImages(List<Image> images) {
+                this.images = images;
+            }
 
-        // Getters y setters
-        public String getName() {
-            return name;
-        }
+            public Sales getSales() {
+                return sales;
+            }
 
-        public void setName(String name) {
-            this.name = name;
-        }
+            public void setSales(Sales sales) {
+                this.sales = sales;
+            }
 
-        public String getType() {
-            return type;
-        }
+            public Dates getDates() {
+                return dates;
+            }
 
-        public void setType(String type) {
-            this.type = type;
-        }
+            public void setDates(Dates dates) {
+                this.dates = dates;
+            }
 
-        public String getId() {
-            return id;
-        }
+            public List<Classification> getClassifications() {
+                return classifications;
+            }
 
-        public void setId(String id) {
-            this.id = id;
-        }
+            public void setClassifications(List<Classification> classifications) {
+                this.classifications = classifications;
+            }
 
-        public String getUrl() {
-            return url;
-        }
+            public Promoter getPromoter() {
+                return promoter;
+            }
 
-        public void setUrl(String url) {
-            this.url = url;
-        }
+            public void setPromoter(Promoter promoter) {
+                this.promoter = promoter;
+            }
 
-        public String getPostalCode() {
-            return postalCode;
-        }
+            public List<Promoter> getPromoters() {
+                return promoters;
+            }
 
-        public void setPostalCode(String postalCode) {
-            this.postalCode = postalCode;
-        }
+            public void setPromoters(List<Promoter> promoters) {
+                this.promoters = promoters;
+            }
 
-        public String getTimezone() {
-            return timezone;
-        }
+            public List<PriceRange> getPriceRanges() {
+                return priceRanges;
+            }
 
-        public void setTimezone(String timezone) {
-            this.timezone = timezone;
-        }
+            public void setPriceRanges(List<PriceRange> priceRanges) {
+                this.priceRanges = priceRanges;
+            }
 
-        public City getCity() {
-            return city;
-        }
+            public Seatmap getSeatmap() {
+                return seatmap;
+            }
 
-        public void setCity(City city) {
-            this.city = city;
-        }
+            public void setSeatmap(Seatmap seatmap) {
+                this.seatmap = seatmap;
+            }
 
-        public State getState() {
-            return state;
-        }
+            public Links get_links() {
+                return _links;
+            }
 
-        public void setState(State state) {
-            this.state = state;
-        }
+            public void set_links(Links _links) {
+                this._links = _links;
+            }
+         // Agregar el método getVenue()
+            public Venue getVenue() {
+                return venue;
+            }
 
-        public Country getCountry() {
-            return country;
-        }
+            public void setVenue(Venue venue) {
+                this.venue = venue;
+            }
+            public static class Venue {
+                private String name;
+                private String city;
+                private String state;
+                private String country;
+                private Location location; // Agregar el campo location
 
-        public void setCountry(Country country) {
-            this.country = country;
-        }
+                // Getters y Setters
+                public String getName() {
+                    return name;
+                }
 
-        public Address getAddress() {
-            return address;
-        }
+                public void setName(String name) {
+                    this.name = name;
+                }
 
-        public void setAddress(Address address) {
-            this.address = address;
-        }
+                public String getCity() {
+                    return city;
+                }
 
-        public Location getLocation() {
-            return location;
-        }
+                public void setCity(String city) {
+                    this.city = city;
+                }
 
-        public void setLocation(Location location) {
-            this.location = location;
-        }
-    }
+                public String getState() {
+                    return state;
+                }
 
-    public static class Location {
-        private Double longitude;  // Cambiar a Double
-        private Double latitude;   // Cambiar a Double
+                public void setState(String state) {
+                    this.state = state;
+                }
 
-        // Getters y setters
-        public Double getLongitude() {
-            return longitude;
-        }
+                public String getCountry() {
+                    return country;
+                }
 
-        public void setLongitude(Double longitude) {
-            this.longitude = longitude;
-        }
+                public void setCountry(String country) {
+                    this.country = country;
+                }
 
-        public Double getLatitude() {
-            return latitude;
-        }
+                // Modificar el método getLocation para que devuelva el objeto Location
+                public Location getLocation() {
+                    return location;
+                }
 
-        public void setLatitude(Double latitude) {
-            this.latitude = latitude;
-        }
-    }
+                public void setLocation(Location location) {
+                    this.location = location;
+                }
 
-    public static class Address {
-        private String line1;
-        private String line2;
-        private String line3;
+                // Método para obtener la ubicación completa (ciudad, estado, país)
+                public String getLocationString() {
+                    StringBuilder location = new StringBuilder();
+                    if (city != null) {
+                        location.append(city);
+                    }
+                    if (state != null && !state.isEmpty()) {
+                        if (location.length() > 0) location.append(", ");
+                        location.append(state);
+                    }
+                    if (country != null && !country.isEmpty()) {
+                        if (location.length() > 0) location.append(", ");
+                        location.append(country);
+                    }
+                    return location.toString();
+                }
 
-        // Getters y setters
-        public String getLine1() {
-            return line1;
-        }
+                // Clase interna Location para almacenar latitud y longitud
+                public static class Location {
+                    private double latitude;
+                    private double longitude;
 
-        public void setLine1(String line1) {
-            this.line1 = line1;
-        }
+                    // Getters y Setters
+                    public double getLatitude() {
+                        return latitude;
+                    }
 
-        public String getLine2() {
-            return line2;
-        }
+                    public void setLatitude(double latitude) {
+                        this.latitude = latitude;
+                    }
 
-        public void setLine2(String line2) {
-            this.line2 = line2;
-        }
+                    public double getLongitude() {
+                        return longitude;
+                    }
 
-        public String getLine3() {
-            return line3;
-        }
+                    public void setLongitude(double longitude) {
+                        this.longitude = longitude;
+                    }
+                }
+            }
 
-        public void setLine3(String line3) {
-            this.line3 = line3;
-        }
-    }
+            public static class Image {
+                private String ratio;
+                private String url;
+                private int width;
+                private int height;
+                private boolean fallback;
 
-    public static class City {
-        private String name;
+                // Getters and Setters
+                public String getRatio() {
+                    return ratio;
+                }
 
-        // Getters y setters
-        public String getName() {
-            return name;
-        }
+                public void setRatio(String ratio) {
+                    this.ratio = ratio;
+                }
 
-        public void setName(String name) {
-            this.name = name;
-        }
-    }
+                public String getUrl() {
+                    return url;
+                }
 
-    public static class State {
-        private String name;
+                public void setUrl(String url) {
+                    this.url = url;
+                }
 
-        // Getters y setters
-        public String getName() {
-            return name;
-        }
+                public int getWidth() {
+                    return width;
+                }
 
-        public void setName(String name) {
-            this.name = name;
-        }
-    }
+                public void setWidth(int width) {
+                    this.width = width;
+                }
 
-    public static class Country {
-        private String name;
+                public int getHeight() {
+                    return height;
+                }
 
-        // Getters y setters
-        public String getName() {
-            return name;
-        }
+                public void setHeight(int height) {
+                    this.height = height;
+                }
 
-        public void setName(String name) {
-            this.name = name;
+                public boolean isFallback() {
+                    return fallback;
+                }
+
+                public void setFallback(boolean fallback) {
+                    this.fallback = fallback;
+                }
+            }
+
+            public static class Sales {
+                @JsonProperty("public")
+                private PublicSale publicSale;
+
+                // Getters and Setters
+                public PublicSale getPublicSale() {
+                    return publicSale;
+                }
+
+                public void setPublicSale(PublicSale publicSale) {
+                    this.publicSale = publicSale;
+                }
+
+                public static class PublicSale {
+                    private String startDateTime;
+                    private boolean startTBD;
+                    private boolean startTBA;
+                    private String endDateTime;
+
+                    // Getters and Setters
+                    public String getStartDateTime() {
+                        return startDateTime;
+                    }
+
+                    public void setStartDateTime(String startDateTime) {
+                        this.startDateTime = startDateTime;
+                    }
+
+                    public boolean isStartTBD() {
+                        return startTBD;
+                    }
+
+                    public void setStartTBD(boolean startTBD) {
+                        this.startTBD = startTBD;
+                    }
+
+                    public boolean isStartTBA() {
+                        return startTBA;
+                    }
+
+                    public void setStartTBA(boolean startTBA) {
+                        this.startTBA = startTBA;
+                    }
+
+                    public String getEndDateTime() {
+                        return endDateTime;
+                    }
+
+                    public void setEndDateTime(String endDateTime) {
+                        this.endDateTime = endDateTime;
+                    }
+                }
+            }
+
+            public static class Dates {
+                private Start start;
+                private String timezone;
+                private Status status;
+                private boolean spanMultipleDays;
+
+                // Getters and Setters
+                public Start getStart() {
+                    return start;
+                }
+
+                public void setStart(Start start) {
+                    this.start = start;
+                }
+
+                public String getTimezone() {
+                    return timezone;
+                }
+
+                public void setTimezone(String timezone) {
+                    this.timezone = timezone;
+                }
+
+                public Status getStatus() {
+                    return status;
+                }
+
+                public void setStatus(Status status) {
+                    this.status = status;
+                }
+
+                public boolean isSpanMultipleDays() {
+                    return spanMultipleDays;
+                }
+
+                public void setSpanMultipleDays(boolean spanMultipleDays) {
+                    this.spanMultipleDays = spanMultipleDays;
+                }
+
+                public static class Start {
+                    private String localDate;
+                    private String localTime;
+                    private String dateTime;
+                    private boolean dateTBD;
+                    private boolean dateTBA;
+                    private boolean timeTBA;
+                    private boolean noSpecificTime;
+
+                    // Getters and Setters
+                    public String getLocalDate() {
+                        return localDate;
+                    }
+
+                    public void setLocalDate(String localDate) {
+                        this.localDate = localDate;
+                    }
+
+                    public String getLocalTime() {
+                        return localTime;
+                    }
+
+                    public void setLocalTime(String localTime) {
+                        this.localTime = localTime;
+                    }
+
+                    public String getDateTime() {
+                        return dateTime;
+                    }
+
+                    public void setDateTime(String dateTime) {
+                        this.dateTime = dateTime;
+                    }
+
+                    public boolean isDateTBD() {
+                        return dateTBD;
+                    }
+
+                    public void setDateTBD(boolean dateTBD) {
+                        this.dateTBD = dateTBD;
+                    }
+
+                    public boolean isDateTBA() {
+                        return dateTBA;
+                    }
+
+                    public void setDateTBA(boolean dateTBA) {
+                        this.dateTBA = dateTBA;
+                    }
+
+                    public boolean isTimeTBA() {
+                        return timeTBA;
+                    }
+
+                    public void setTimeTBA(boolean timeTBA) {
+                        this.timeTBA = timeTBA;
+                    }
+
+                    public boolean isNoSpecificTime() {
+                        return noSpecificTime;
+                    }
+
+                    public void setNoSpecificTime(boolean noSpecificTime) {
+                        this.noSpecificTime = noSpecificTime;
+                    }
+                }
+
+                public static class Status {
+                    private String code;
+
+                    // Getters and Setters
+                    public String getCode() {
+                        return code;
+                    }
+
+                    public void setCode(String code) {
+                        this.code = code;
+                    }
+                }
+            }
+
+            public static class Classification {
+                private boolean primary;
+                private Segment segment;
+                private Genre genre;
+                private SubGenre subGenre;
+                private boolean family;
+
+                // Getters and Setters
+                public boolean isPrimary() {
+                    return primary;
+                }
+
+                public void setPrimary(boolean primary) {
+                    this.primary = primary;
+                }
+
+                public Segment getSegment() {
+                    return segment;
+                }
+
+                public void setSegment(Segment segment) {
+                    this.segment = segment;
+                }
+
+                public Genre getGenre() {
+                    return genre;
+                }
+
+                public void setGenre(Genre genre) {
+                    this.genre = genre;
+                }
+
+                public SubGenre getSubGenre() {
+                    return subGenre;
+                }
+
+                public void setSubGenre(SubGenre subGenre) {
+                    this.subGenre = subGenre;
+                }
+
+                public boolean isFamily() {
+                    return family;
+                }
+
+                public void setFamily(boolean family) {
+                    this.family = family;
+                }
+
+                public static class Segment {
+                    private String id;
+                    private String name;
+
+                    // Getters and Setters
+                    public String getId() {
+                        return id;
+                    }
+
+                    public void setId(String id) {
+                        this.id = id;
+                    }
+
+                    public String getName() {
+                        return name;
+                    }
+
+                    public void setName(String name) {
+                        this.name = name;
+                    }
+                }
+
+                public static class Genre {
+                    private String id;
+                    private String name;
+
+                    // Getters and Setters
+                    public String getId() {
+                        return id;
+                    }
+
+                    public void setId(String id) {
+                        this.id = id;
+                    }
+
+                    public String getName() {
+                        return name;
+                    }
+
+                    public void setName(String name) {
+                        this.name = name;
+                    }
+                }
+
+                public static class SubGenre {
+                    private String id;
+                    private String name;
+
+                    // Getters and Setters
+                    public String getId() {
+                        return id;
+                    }
+
+                    public void setId(String id) {
+                        this.id = id;
+                    }
+
+                    public String getName() {
+                        return name;
+                    }
+
+                    public void setName(String name) {
+                        this.name = name;
+                    }
+                }
+            }
+
+            public static class Promoter {
+                private String id;
+                private String name;
+
+                // Getters and Setters
+                public String getId() {
+                    return id;
+                }
+
+                public void setId(String id) {
+                    this.id = id;
+                }
+
+                public String getName() {
+                    return name;
+                }
+
+                public void setName(String name) {
+                    this.name = name;
+                }
+            }
+
+            public static class PriceRange {
+                private String type;
+                private double min;
+                private double max;
+
+                // Getters and Setters
+                public String getType() {
+                    return type;
+                }
+
+                public void setType(String type) {
+                    this.type = type;
+                }
+
+                public double getMin() {
+                    return min;
+                }
+
+                public void setMin(double min) {
+                    this.min = min;
+                }
+
+                public double getMax() {
+                    return max;
+                }
+
+                public void setMax(double max) {
+                    this.max = max;
+                }
+            }
+
+            public static class Seatmap {
+                private String staticUrl;
+
+                // Getters and Setters
+                public String getStaticUrl() {
+                    return staticUrl;
+                }
+
+                public void setStaticUrl(String staticUrl) {
+                    this.staticUrl = staticUrl;
+                }
+            }
+
+            public static class Links {
+                private Link self;
+
+                // Getters and Setters
+                public Link getSelf() {
+                    return self;
+                }
+
+                public void setSelf(Link self) {
+                    this.self = self;
+                }
+
+                public static class Link {
+                    private String href;
+
+                    // Getters and Setters
+                    public String getHref() {
+                        return href;
+                    }
+
+                    public void setHref(String href) {
+                        this.href = href;
+                    }
+                }
+            }
         }
     }
 }

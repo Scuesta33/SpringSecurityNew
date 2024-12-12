@@ -25,8 +25,8 @@ public class TicketmasterController {
     }
 
     @GetMapping("/city/{city}")
-    public ResponseEntity<List<TicketmasterEventResponse.Event>> getEvents(@PathVariable String city) {
-        List<TicketmasterEventResponse.Event> events = ticketmasterService.getEvents(city);
+    public ResponseEntity<List<TicketmasterEventResponse.Embedded.Event>> getEvents(@PathVariable String city) {
+        List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterService.getEvents(city);
 
         if (events.isEmpty()) {
             return ResponseEntity.noContent().build();  // 204 No Content si no se encuentran eventos
@@ -36,8 +36,8 @@ public class TicketmasterController {
     }
     
     @GetMapping("/popular")
-    public ResponseEntity<List<TicketmasterEventResponse.Event>> getPopularEvents(){
-    	List<TicketmasterEventResponse.Event> events = ticketmasterService.getPopularEvents();
+    public ResponseEntity<List<TicketmasterEventResponse.Embedded.Event>> getPopularEvents(){
+    	List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterService.getPopularEvents();
     	
     	if(events.isEmpty()) {
     		return ResponseEntity.noContent().build();
@@ -47,9 +47,9 @@ public class TicketmasterController {
     //nuevo endpoint para buscar eventos por palabra clave
     //http://localhost:8080/api/events/search?keyword=     esta sería la url
     @GetMapping("/search")
-    public ResponseEntity<List<TicketmasterEventResponse.Event>> searchEventsByKeyword(@RequestParam String keyword){
+    public ResponseEntity<List<TicketmasterEventResponse.Embedded.Event>> searchEventsByKeyword(@RequestParam String keyword){
     	//llamar al servicio para obtener los eventos por palabra clave
-    	List<TicketmasterEventResponse.Event> events = ticketmasterService.searchEventsByKeyword(keyword);
+    	List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterService.searchEventsByKeyword(keyword);
     	
     	//Si hay eventos que los devuelva con un código 200 sino devuelve una respuesta vacia 204
     	if (!events.isEmpty()) {
@@ -59,6 +59,18 @@ public class TicketmasterController {
     	}
     	
     }
-    
+ // Endpoint para obtener los detalles de un evento por su ID
+    @GetMapping("/event/{id}") // Cambié eventId por id
+    public ResponseEntity<TicketmasterEventResponse.Embedded.Event> getEventDetails(@PathVariable String id) {
+    	TicketmasterEventResponse.Embedded.Event event = ticketmasterService.getEventDetails(id);
+
+        if (event == null) {
+            return ResponseEntity.notFound().build();  // 404 Not Found si no se encuentra el evento
+        }
+
+        return ResponseEntity.ok(event);  // 200 OK con los detalles del evento
+    }
+
+
     
 }
