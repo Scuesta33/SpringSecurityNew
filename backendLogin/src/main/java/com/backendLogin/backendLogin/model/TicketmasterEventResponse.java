@@ -1,7 +1,8 @@
+
 package com.backendLogin.backendLogin.model;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
 public class TicketmasterEventResponse {
 
@@ -19,6 +20,7 @@ public class TicketmasterEventResponse {
 
     public static class Embedded {
 
+        @JsonProperty("events")
         private List<Event> events;
 
         // Getters and Setters
@@ -32,22 +34,54 @@ public class TicketmasterEventResponse {
 
         public static class Event {
 
+            @JsonProperty("name")
             private String name;
+
+            @JsonProperty("type")
             private String type;
+
+            @JsonProperty("id")
             private String id;
+
+            @JsonProperty("test")
             private boolean test;
+
+            @JsonProperty("url")
             private String url;
+
+            @JsonProperty("locale")
             private String locale;
+
+            @JsonProperty("images")
             private List<Image> images;
+
+            @JsonProperty("sales")
             private Sales sales;
+
+            @JsonProperty("dates")
             private Dates dates;
+
+            @JsonProperty("classifications")
             private List<Classification> classifications;
+
+            @JsonProperty("promoter")
             private Promoter promoter;
+
+            @JsonProperty("promoters")
             private List<Promoter> promoters;
+
+            @JsonProperty("priceRanges")
             private List<PriceRange> priceRanges;
+
+            @JsonProperty("seatmap")
             private Seatmap seatmap;
+
+            @JsonProperty("_links")
             private Links _links;
-            private Venue venue;
+
+            @JsonProperty("venues")
+            private List<Venue> venues;
+
             // Getters and Setters
             public String getName() {
                 return name;
@@ -168,22 +202,32 @@ public class TicketmasterEventResponse {
             public void set_links(Links _links) {
                 this._links = _links;
             }
-         // Agregar el método getVenue()
-            public Venue getVenue() {
-                return venue;
+
+            public List<Venue> getVenues() {
+                return venues;
             }
 
-            public void setVenue(Venue venue) {
-                this.venue = venue;
+            public void setVenues(List<Venue> venues) {
+                this.venues = venues;
             }
+
             public static class Venue {
+                @JsonProperty("name")
                 private String name;
-                private String city;
-                private String state;
-                private String country;
-                private Location location; // Agregar el campo location
 
-                // Getters y Setters
+                @JsonProperty("city")
+                private String city;
+
+                @JsonProperty("state")
+                private String state;
+
+                @JsonProperty("country")
+                private String country;
+
+                @JsonProperty("location")
+                private Location location;
+
+                // Getters and Setters
                 public String getName() {
                     return name;
                 }
@@ -216,7 +260,6 @@ public class TicketmasterEventResponse {
                     this.country = country;
                 }
 
-                // Modificar el método getLocation para que devuelva el objeto Location
                 public Location getLocation() {
                     return location;
                 }
@@ -225,29 +268,14 @@ public class TicketmasterEventResponse {
                     this.location = location;
                 }
 
-                // Método para obtener la ubicación completa (ciudad, estado, país)
-                public String getLocationString() {
-                    StringBuilder location = new StringBuilder();
-                    if (city != null) {
-                        location.append(city);
-                    }
-                    if (state != null && !state.isEmpty()) {
-                        if (location.length() > 0) location.append(", ");
-                        location.append(state);
-                    }
-                    if (country != null && !country.isEmpty()) {
-                        if (location.length() > 0) location.append(", ");
-                        location.append(country);
-                    }
-                    return location.toString();
-                }
-
-                // Clase interna Location para almacenar latitud y longitud
                 public static class Location {
+                    @JsonProperty("latitude")
                     private double latitude;
+
+                    @JsonProperty("longitude")
                     private double longitude;
 
-                    // Getters y Setters
+                    // Getters and Setters
                     public double getLatitude() {
                         return latitude;
                     }
@@ -267,10 +295,19 @@ public class TicketmasterEventResponse {
             }
 
             public static class Image {
+                @JsonProperty("ratio")
                 private String ratio;
+
+                @JsonProperty("url")
                 private String url;
+
+                @JsonProperty("width")
                 private int width;
+
+                @JsonProperty("height")
                 private int height;
+
+                @JsonProperty("fallback")
                 private boolean fallback;
 
                 // Getters and Setters
@@ -329,9 +366,16 @@ public class TicketmasterEventResponse {
                 }
 
                 public static class PublicSale {
+                    @JsonProperty("startDateTime")
                     private String startDateTime;
+
+                    @JsonProperty("startTBD")
                     private boolean startTBD;
+
+                    @JsonProperty("startTBA")
                     private boolean startTBA;
+
+                    @JsonProperty("endDateTime")
                     private String endDateTime;
 
                     // Getters and Setters
@@ -370,9 +414,16 @@ public class TicketmasterEventResponse {
             }
 
             public static class Dates {
+                @JsonProperty("start")
                 private Start start;
+
+                @JsonProperty("timezone")
                 private String timezone;
+
+                @JsonProperty("status")
                 private Status status;
+
+                @JsonProperty("spanMultipleDays")
                 private boolean spanMultipleDays;
 
                 // Getters and Setters
@@ -409,12 +460,25 @@ public class TicketmasterEventResponse {
                 }
 
                 public static class Start {
+                    @JsonProperty("localDate")
                     private String localDate;
+
+                    @JsonProperty("localTime")
                     private String localTime;
+
+                    @JsonProperty("dateTime")
                     private String dateTime;
+
+                    @JsonProperty("dateTBD")
                     private boolean dateTBD;
+
+                    @JsonProperty("dateTBA")
                     private boolean dateTBA;
+
+                    @JsonProperty("timeTBA")
                     private boolean timeTBA;
+
+                    @JsonProperty("noSpecificTime")
                     private boolean noSpecificTime;
 
                     // Getters and Setters
@@ -476,6 +540,7 @@ public class TicketmasterEventResponse {
                 }
 
                 public static class Status {
+                    @JsonProperty("code")
                     private String code;
 
                     // Getters and Setters
@@ -490,10 +555,19 @@ public class TicketmasterEventResponse {
             }
 
             public static class Classification {
+                @JsonProperty("primary")
                 private boolean primary;
+
+                @JsonProperty("segment")
                 private Segment segment;
+
+                @JsonProperty("genre")
                 private Genre genre;
+
+                @JsonProperty("subGenre")
                 private SubGenre subGenre;
+
+                @JsonProperty("family")
                 private boolean family;
 
                 // Getters and Setters
@@ -538,7 +612,10 @@ public class TicketmasterEventResponse {
                 }
 
                 public static class Segment {
+                    @JsonProperty("id")
                     private String id;
+
+                    @JsonProperty("name")
                     private String name;
 
                     // Getters and Setters
@@ -560,7 +637,10 @@ public class TicketmasterEventResponse {
                 }
 
                 public static class Genre {
+                    @JsonProperty("id")
                     private String id;
+
+                    @JsonProperty("name")
                     private String name;
 
                     // Getters and Setters
@@ -582,7 +662,10 @@ public class TicketmasterEventResponse {
                 }
 
                 public static class SubGenre {
+                    @JsonProperty("id")
                     private String id;
+
+                    @JsonProperty("name")
                     private String name;
 
                     // Getters and Setters
@@ -605,7 +688,10 @@ public class TicketmasterEventResponse {
             }
 
             public static class Promoter {
+                @JsonProperty("id")
                 private String id;
+
+                @JsonProperty("name")
                 private String name;
 
                 // Getters and Setters
@@ -627,8 +713,13 @@ public class TicketmasterEventResponse {
             }
 
             public static class PriceRange {
+                @JsonProperty("type")
                 private String type;
+
+                @JsonProperty("min")
                 private double min;
+
+                @JsonProperty("max")
                 private double max;
 
                 // Getters and Setters
@@ -658,6 +749,7 @@ public class TicketmasterEventResponse {
             }
 
             public static class Seatmap {
+                @JsonProperty("staticUrl")
                 private String staticUrl;
 
                 // Getters and Setters
@@ -671,6 +763,7 @@ public class TicketmasterEventResponse {
             }
 
             public static class Links {
+                @JsonProperty("self")
                 private Link self;
 
                 // Getters and Setters
@@ -683,6 +776,7 @@ public class TicketmasterEventResponse {
                 }
 
                 public static class Link {
+                    @JsonProperty("href")
                     private String href;
 
                     // Getters and Setters
@@ -691,7 +785,6 @@ public class TicketmasterEventResponse {
                     }
 
                     public void setHref(String href) {
-                        this.href = href;
                     }
                 }
             }

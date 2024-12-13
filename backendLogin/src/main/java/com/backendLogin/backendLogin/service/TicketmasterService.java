@@ -22,9 +22,8 @@ import java.util.stream.Collectors;
 @Service
 public class TicketmasterService {
 
-    private static final String API_KEY = "pEcMNJSJ3LHWyJdLfjhfGyy4q7bO0XlD";
     private static final String URL = "https://app.ticketmaster.com/discovery/v2/events.json";
-
+    private static final String API_KEY = "pEcMNJSJ3LHWyJdLfjhfGyy4q7bO0XlD";
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
@@ -36,56 +35,49 @@ public class TicketmasterService {
         this.objectMapper = objectMapper;
     }
 
-    // Método que obtiene los eventos por ciudad
     public List<TicketmasterEventResponse.Embedded.Event> getEvents(String city) {
-        // Construir la URL con los parámetros correctos
         String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
                 .queryParam("apikey", API_KEY)
                 .queryParam("city", city)
                 .toUriString();
 
-        // Hacer la solicitud GET
         ResponseEntity<String> response = restTemplate.exchange(
-                requestUrl, HttpMethod.GET, null, String.class); // Obtenemos la respuesta como String
+                requestUrl, HttpMethod.GET, null, String.class);
 
-        // Imprimir la URL y la respuesta cruda para depuración
         logger.debug("URL generada para la consulta: {}", requestUrl);
         logger.debug("Respuesta cruda de Ticketmaster: {}", response.getBody());
 
-        // Procesar la respuesta
         try {
-            // Deserializar la respuesta cruda JSON a TicketmasterEventResponse
             TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
-            // Comprobar si la respuesta contiene eventos
-            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null 
+            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
                     && ticketmasterResponse.getEmbedded().getEvents() != null) {
                 List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterResponse.getEmbedded().getEvents();
 
-                // Asegurarse de que cada evento tenga solo la primera imagen (si existe)
                 for (TicketmasterEventResponse.Embedded.Event event : events) {
                     if (event.getImages() != null && !event.getImages().isEmpty()) {
-                        event.setImages(Collections.singletonList(event.getImages().get(0))); // Solo la primera imagen
+                        event.setImages(Collections.singletonList(event.getImages().get(0)));
                     }
 
-                    // Verificar y mostrar las coordenadas del evento en el log
-                    if (event.getVenue() != null && event.getVenue().getLocation() != null) {
-                        Double latitude = event.getVenue().getLocation().getLatitude();
-                        Double longitude = event.getVenue().getLocation().getLongitude();
-                        
-                        if (latitude != null && longitude != null) {
-                            logger.debug("Evento: {}, Latitud: {}, Longitud: {}", event.getName(), latitude, longitude);
+                    if (event.getVenues() != null && !event.getVenues().isEmpty()) {
+                        TicketmasterEventResponse.Embedded.Event.Venue venue = event.getVenues().get(0);
+                        if (venue.getLocation() != null) {
+                            Double latitude = venue.getLocation().getLatitude();
+                            Double longitude = venue.getLocation().getLongitude();
+
+                            if (latitude != null && longitude != null) {
+                                logger.debug("Evento: {}, Latitud: {}, Longitud: {}", event.getName(), latitude, longitude);
+                            }
                         }
                     }
                 }
 
-                // Eliminar eventos duplicados basados en el nombre
                 List<TicketmasterEventResponse.Embedded.Event> uniqueEvents = removeDuplicateEvents(events);
 
                 return uniqueEvents;
             } else {
                 logger.warn("No se encontraron eventos para la ciudad: {}", city);
-                return Collections.emptyList(); // Retorna una lista vacía si no hay eventos
+                return Collections.emptyList();
             }
         } catch (JsonProcessingException e) {
             logger.error("Error al procesar la respuesta JSON para la URL: {}", requestUrl, e);
@@ -93,158 +85,142 @@ public class TicketmasterService {
         }
     }
 
-    // Método para obtener eventos populares en España
     public List<TicketmasterEventResponse.Embedded.Event> getPopularEvents() {
-        // Construir la URL con los parámetros correctos, incluyendo parámetro de popularidad
         String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
-                .queryParam("apikey", API_KEY)  // Correcto: "apikey" debe ir en minúsculas
-                .queryParam("sort", "relevance,desc")  // Ordenar por relevancia (también puede implicar popularidad)
-                .queryParam("size", 9)  // Limitar a 9 eventos más populares
-                .queryParam("countryCode", "ES")  // Filtrar por España
+                .queryParam("apikey", API_KEY)
+                .queryParam("sort", "relevance,desc")
+                .queryParam("size", 9)
+                .queryParam("countryCode", "ES")
                 .toUriString();
 
-        // Hacer la solicitud GET
         ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
 
-        // Imprimir la URL y la respuesta cruda para depuración
         logger.debug("URL generada para la consulta: {}", requestUrl);
         logger.debug("Respuesta cruda de Ticketmaster: {}", response.getBody());
 
         try {
-            // Deserializar la respuesta cruda JSON a TicketmasterEventResponse
             TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
-            // Comprobar si la respuesta contiene eventos
             if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
                     && ticketmasterResponse.getEmbedded().getEvents() != null) {
                 List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterResponse.getEmbedded().getEvents();
 
-                // Asegurarse de que cada evento tenga solo la primera imagen (si existe)
                 for (TicketmasterEventResponse.Embedded.Event event : events) {
                     if (event.getImages() != null && !event.getImages().isEmpty()) {
-                        event.setImages(Collections.singletonList(event.getImages().get(0))); // Solo la primera imagen
+                        event.setImages(Collections.singletonList(event.getImages().get(0)));
                     }
 
-                    // Verificar y mostrar las coordenadas del evento en el log
-                    if (event.getVenue() != null && event.getVenue().getLocation() != null) {
-                        Double latitude = event.getVenue().getLocation().getLatitude();
-                        Double longitude = event.getVenue().getLocation().getLongitude();
-                        
-                        if (latitude != null && longitude != null) {
-                            logger.debug("Evento: {}, Latitud: {}, Longitud: {}", event.getName(), latitude, longitude);
+                    if (event.getVenues() != null && !event.getVenues().isEmpty()) {
+                        TicketmasterEventResponse.Embedded.Event.Venue venue = event.getVenues().get(0);
+                        if (venue.getLocation() != null) {
+                            Double latitude = venue.getLocation().getLatitude();
+                            Double longitude = venue.getLocation().getLongitude();
+
+                            if (latitude != null && longitude != null) {
+                                logger.debug("Evento: {}, Latitud: {}, Longitud: {}", event.getName(), latitude, longitude);
+                            }
                         }
                     }
                 }
 
-                // Eliminar eventos duplicados basados en el nombre
                 List<TicketmasterEventResponse.Embedded.Event> uniqueEvents = removeDuplicateEvents(events);
 
-                return uniqueEvents;  // Retorna los eventos únicos si están presentes
+                return uniqueEvents;
             } else {
                 logger.warn("No se encontraron eventos populares.");
-                return Collections.emptyList();  // Retorna una lista vacía si no hay eventos populares
+                return Collections.emptyList();
             }
         } catch (JsonProcessingException e) {
             logger.error("Error al procesar la respuesta JSON para la URL: {}", requestUrl, e);
-            return Collections.emptyList();  // Retorna una lista vacía si hay error al procesar la respuesta
+            return Collections.emptyList();
         }
     }
 
-    // Método para búsqueda de eventos por palabra clave
-    public List<TicketmasterEventResponse.Embedded.Event> searchEventsByKeyword(String keyword){
-        // Construir la URL con los parámetros correctos, incluyendo keyword
+    public List<TicketmasterEventResponse.Embedded.Event> searchEventsByKeyword(String keyword) {
         String requestUrl = UriComponentsBuilder.fromHttpUrl(URL)
                 .queryParam("apikey", API_KEY)
                 .queryParam("keyword", keyword)
                 .queryParam("size", 9)
                 .toUriString();
 
-        // Hacer solicitud GET
         ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
 
-        // Respuesta cruda de depuración de url
         logger.debug("URL generada para la consulta: {}", requestUrl);
         logger.debug("Respuesta cruda de Ticketmaster: {}", response.getBody());
 
-        // Procesar la respuesta
         try {
-            // Deserializar la respuesta cruda JSON a TicketmasterEventResponse
             TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
-            // Comprobar si la respuesta contiene eventos
-            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null 
+            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
                     && ticketmasterResponse.getEmbedded().getEvents() != null) {
                 List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterResponse.getEmbedded().getEvents();
 
-                // Asegurarse de que cada evento tenga solo la primera imagen (si existe)
                 for (TicketmasterEventResponse.Embedded.Event event : events) {
                     if (event.getImages() != null && !event.getImages().isEmpty()) {
-                        event.setImages(Collections.singletonList(event.getImages().get(0))); // Solo la primera imagen
+                        event.setImages(Collections.singletonList(event.getImages().get(0)));
                     }
 
-                    // Verificar y mostrar las coordenadas del evento en el log
-                    if (event.getVenue() != null && event.getVenue().getLocation() != null) {
-                        Double latitude = event.getVenue().getLocation().getLatitude();
-                        Double longitude = event.getVenue().getLocation().getLongitude();
-                        
-                        if (latitude != null && longitude != null) {
-                            logger.debug("Evento: {}, Latitud: {}, Longitud: {}", event.getName(), latitude, longitude);
+                    if (event.getVenues() != null && !event.getVenues().isEmpty()) {
+                        TicketmasterEventResponse.Embedded.Event.Venue venue = event.getVenues().get(0);
+                        if (venue.getLocation() != null) {
+                            Double latitude = venue.getLocation().getLatitude();
+                            Double longitude = venue.getLocation().getLongitude();
+
+                            if (latitude != null && longitude != null) {
+                                logger.debug("Evento: {}, Latitud: {}, Longitud: {}", event.getName(), latitude, longitude);
+                            }
                         }
                     }
                 }
 
-                // Eliminar eventos duplicados basados en el nombre
                 List<TicketmasterEventResponse.Embedded.Event> uniqueEvents = removeDuplicateEvents(events);
 
-                return uniqueEvents;  // Retorna los eventos únicos si están presentes
+                return uniqueEvents;
             } else {
                 logger.warn("No se encontraron eventos para la palabra clave: {}", keyword);
-                return Collections.emptyList();  // Retorna una lista vacía si no hay eventos
+                return Collections.emptyList();
             }
         } catch (JsonProcessingException e) {
             logger.error("Error al procesar la respuesta JSON para la URL: {}", requestUrl, e);
-            return Collections.emptyList();  // Retorna una lista vacía si hay error al procesar la respuesta
+            return Collections.emptyList();
         }
     }
 
-    // Método para eliminar eventos duplicados basados en el nombre
     private List<TicketmasterEventResponse.Embedded.Event> removeDuplicateEvents(List<TicketmasterEventResponse.Embedded.Event> events) {
         Set<String> eventNames = new HashSet<>();
         return events.stream()
-                .filter(event -> eventNames.add(event.getName())) // Filtra duplicados por el nombre del evento
+                .filter(event -> eventNames.add(event.getName()))
                 .collect(Collectors.toList());
     }
 
-    public TicketmasterEventResponse.Embedded.Event getEventDetails(String id) {
-        // Construir la URL correctamente con el id del evento
-        String requestUrl = UriComponentsBuilder.fromHttpUrl("https://app.ticketmaster.com/discovery/v2/events/" + id + ".json")
-                .queryParam("apikey", API_KEY)
-                .toUriString();
 
-        // Imprimir la URL generada en el log para depuración
-        logger.debug("URL generada para el evento: {}", requestUrl);
+public TicketmasterEventResponse.Embedded.Event getEventDetails(String id) {
+    String requestUrl = UriComponentsBuilder.fromHttpUrl(URL + "/" + id)
+            .queryParam("apikey", API_KEY)
+            .toUriString();
 
-        // Hacer la solicitud GET
-        ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
+    logger.debug("URL generada para el evento: {}", requestUrl);
 
-        // Procesar la respuesta
-        try {
-            // Deserializar la respuesta JSON a TicketmasterEventResponse
-            TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
+    ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
 
-            // Comprobar si la respuesta contiene el evento
-            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
-                    && ticketmasterResponse.getEmbedded().getEvents() != null && !ticketmasterResponse.getEmbedded().getEvents().isEmpty()) {
-                // Si se encuentra el evento, retornarlo
-                return ticketmasterResponse.getEmbedded().getEvents().get(0);  
-            } else {
-                logger.warn("No se encontró el evento con el ID: {}", id);  // Si no se encuentra el evento
-                return null;
-            }
-        } catch (JsonProcessingException e) {
-            // En caso de error en el procesamiento del JSON, logueamos el error
-            logger.error("Error al procesar la respuesta JSON para el evento con ID: {}", id, e);
-            return null;  // Retorna null si hay error de procesamiento JSON
+    logger.debug("Respuesta cruda de Ticketmaster: {}", response.getBody());
+
+    try {
+        TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
+
+        if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
+                && ticketmasterResponse.getEmbedded().getEvents() != null && !ticketmasterResponse.getEmbedded().getEvents().isEmpty()) {
+            return ticketmasterResponse.getEmbedded().getEvents().get(0);
+        } else {
+            logger.warn("No se encontró el evento con el ID: {}", id);
+            return null;
         }
+    } catch (JsonProcessingException e) {
+        logger.error("Error al procesar la respuesta JSON para el evento con ID: {}", id, e);
+        return null;
     }
+}
+
+
+    
 }
