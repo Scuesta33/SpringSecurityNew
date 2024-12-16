@@ -33,8 +33,11 @@ import com.backendLogin.backendLogin.dto.UserSecUpdateRequest;
 import com.backendLogin.backendLogin.model.Role;
 import com.backendLogin.backendLogin.model.UpdateUserRequest;
 import com.backendLogin.backendLogin.model.UserSec;
+import com.backendLogin.backendLogin.service.EmailService;
 import com.backendLogin.backendLogin.service.IRoleService;
 import com.backendLogin.backendLogin.service.IUserService;
+
+import jakarta.mail.MessagingException;
 
 @RestController
 @RequestMapping("/api/users")
@@ -45,6 +48,9 @@ public class UserController {
 
     @Autowired
     private IRoleService roleService;  // Servicio para manejar la lógica de roles
+    
+    @Autowired
+    private EmailService emailService;  // Servicio para enviar correos electrónicos
     
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -63,135 +69,140 @@ public class UserController {
                    .orElseGet(() -> ResponseEntity.notFound().build()); // Si no lo encuentra, devuelve un 404
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody @Validated RegisterDTO registerDTO, BindingResult result) {
-        // Verificamos si hay errores de validación en el DTO
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Invalid data provided"));
-        }
 
-        // Verificamos si la contraseña es nula o está vacía
-        if (registerDTO.getPassword() == null || registerDTO.getPassword().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Password cannot be empty"));
-        }
-
-        // Comprobamos si las contraseñas coinciden
-        if (!registerDTO.getPassword().equals(registerDTO.getPassword())) {  // Aquí corregí el error: se comparaban las mismas contraseñas.
-            return ResponseEntity.badRequest().body(Map.of("message", "Passwords do not match"));
-        }
-
-        // Verificamos si el nombre de usuario ya existe
-        Optional<UserSec> existingUser = userService.findByName(registerDTO.getUsername());
-        if (existingUser.isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Username already exists"));
-        }
-
-        // Verificamos si el correo electrónico ya existe
-        Optional<UserSec> existingEmailUser = userService.findByEmail(registerDTO.getEmail());
-        if (existingEmailUser.isPresent()) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Email already exists"));
-        }
-
-        // Buscamos el rol 'USER' con id 1
-        Role userRole = roleService.findById(1L).orElseGet(() -> {
-            // Si el rol no existe, lo creamos
-            Role defaultRole = new Role();
-            defaultRole.setName("USER");
-            return roleService.save(defaultRole);
-        });
-
-        // Creamos el objeto UserSec con los datos del DTO
-        UserSec userSec = new UserSec();
-        userSec.setUsername(registerDTO.getUsername());
-        userSec.setPassword(userService.encriptPassword(registerDTO.getPassword())); // Encriptamos la contraseña
-        userSec.setEmail(registerDTO.getEmail()); // Establecemos el correo electrónico
-
-        // Establecemos los valores adicionales como habilitado, cuenta no expirada, etc.
-        userSec.setEnabled(true);  // Habilitar la cuenta
-        userSec.setAccountNotExpired(true);  // Cuenta no expirada
-        userSec.setAccountNotLocked(true);  // Cuenta no bloqueada
-        userSec.setCredentialNotExpired(true);  // Credenciales no expiradas
-
-        // Asignamos el rol 'USER'
-        Set<Role> roleList = new HashSet<>();
-        roleList.add(userRole);
-        userSec.setRolesList(roleList);
-
-        // Guardamos el usuario en la base de datos
-        UserSec newUser = userService.save(userSec);
-
-        // Devolvemos una respuesta exitosa
-        return ResponseEntity.ok(Map.of("message", "Usuario registrado exitosa", "user", newUser));
+@PostMapping("/register")
+public ResponseEntity<?> registerUser(@RequestBody @Validated RegisterDTO registerDTO, BindingResult result) {
+    if (result.hasErrors()) {
+        return ResponseEntity.badRequest().body(Map.of("message", "Invalid data provided"));
     }
+
+    if (registerDTO.getPassword() == null || registerDTO.getPassword().isEmpty()) {
+        return ResponseEntity.badRequest().body(Map.of("message", "Password cannot be empty"));
+    }
+
+    if (!registerDTO.getPassword().equals(registerDTO.getPassword())) {
+        return ResponseEntity.badRequest().body(Map.of("message", "Passwords do not match"));
+    }
+
+    Optional<UserSec> existingUser = userService.findByName(registerDTO.getUsername());
+    if (existingUser.isPresent()) {
+        return ResponseEntity.badRequest().body(Map.of("message", "Username already exists"));
+    }
+
+    Optional<UserSec> existingEmailUser = userService.findByEmail(registerDTO.getEmail());
+    if (existingEmailUser.isPresent()) {
+        return ResponseEntity.badRequest().body(Map.of("message", "Email already exists"));
+    }
+
+    Role userRole = roleService.findById(1L).orElseGet(() -> {
+        Role defaultRole = new Role();
+        defaultRole.setName("USER");
+        return roleService.save(defaultRole);
+    });
+
+    UserSec userSec = new UserSec();
+    userSec.setUsername(registerDTO.getUsername());
+    userSec.setPassword(userService.encriptPassword(registerDTO.getPassword()));
+    userSec.setEmail(registerDTO.getEmail());
+    userSec.setEnabled(true);
+    userSec.setAccountNotExpired(true);
+    userSec.setAccountNotLocked(true);
+    userSec.setCredentialNotExpired(true);
+
+    Set<Role> roleList = new HashSet<>();
+    roleList.add(userRole);
+    userSec.setRolesList(roleList);
+
+    UserSec newUser = userService.save(userSec);
+
+    try {
+        emailService.sendRegistrationEmail(registerDTO.getEmail());
+    } catch (MessagingException e) {
+        logger.error("Error sending registration email: " + e.getMessage(), e);
+    }
+
+    return ResponseEntity.ok(Map.of("message", "Usuario registrado exitosamente", "user", newUser));
+}
+
 
     
-    @PutMapping("/updateUser")
-    public ResponseEntity<UserSec> updateUser(@RequestBody UserSecUpdateRequest updateRequest) {
-    	try {
-            // Obtener el nombre de usuario desde el contexto de seguridad (decodificado desde el token JWT)
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName(); // El nombre de usuario proviene del token JWT
+@PutMapping("/updateUser")
+public ResponseEntity<UserSec> updateUser(@RequestBody UserSecUpdateRequest updateRequest) {
+    try {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
 
-            // Llamar al servicio para actualizar el usuario
-            UserSec updatedUser = userService.updateUser(
-                username,         // Obtener el nombre de usuario del token JWT
-                updateRequest.getNewUsername(),
-                updateRequest.getNewPassword(),
-                updateRequest.getNewEmail()
-            );
+        // Llamada al servicio para obtener el usuario actualizado
+        UserSec updatedUser = userService.updateUser(
+            username,
+            updateRequest.getNewUsername(),
+            updateRequest.getNewPassword(),
+            updateRequest.getNewEmail()
+        );
 
-            return ResponseEntity.ok(updatedUser);
-        } catch (IllegalArgumentException e) {
-            // Manejo de errores si el username es inválido
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        } catch (Exception e) {
-            // Manejo de otros errores
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        // Comprobar si hubo cambios en alguno de los campos importantes
+        boolean isEmailUpdated = !updatedUser.getEmail().equals(updateRequest.getNewEmail());
+        boolean isUsernameUpdated = !updatedUser.getUsername().equals(updateRequest.getNewUsername());
+        boolean isPasswordUpdated = !updatedUser.getPassword().equals(updateRequest.getNewPassword());
+
+        // Si alguno de los campos ha sido actualizado, enviamos el correo
+        if (isEmailUpdated || isUsernameUpdated || isPasswordUpdated) {
+            emailService.sendCredentialUpdateEmail(updatedUser.getEmail());
         }
-    }
 
+        return ResponseEntity.ok(updatedUser);
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
+}
 
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteUser() {
         try {
-            // Obtener el nombre de usuario desde el contexto de seguridad (decodificado desde el token JWT)
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName(); // El nombre de usuario proviene del token JWT
+            String username = authentication.getName();
 
-            // Llamamos al servicio para eliminar al usuario con el nombre de usuario extraído
             boolean isDeleted = userService.deleteByUsername(username);
 
-            // Si la eliminación es exitosa
             if (isDeleted) {
+                Optional<UserSec> user = userService.findByName(username);
+                if (user.isPresent()) {
+                    emailService.sendAccountDeletionEmail(user.get().getEmail());
+                }
                 return ResponseEntity.ok("Usuario eliminado exitosamente.");
             } else {
                 return ResponseEntity.status(400).body("No se pudo eliminar el usuario.");
             }
         } catch (Exception e) {
-            // En caso de error, logueamos el error y devolvemos un mensaje de error
             logger.error("Error al eliminar el usuario: " + e.getMessage(), e);
             return ResponseEntity.status(500).body("Hubo un error al procesar la solicitud.");
         }
     }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteUserById(@PathVariable Long id) {
         try {
-            // Llamamos al servicio para eliminar el usuario por su ID
             boolean isDeleted = userService.deleteUserById(id);
 
-            // Si la eliminación es exitosa
             if (isDeleted) {
+                Optional<UserSec> user = userService.findById(id);
+                user.ifPresent(u -> {
+                    try {
+                        emailService.sendAccountDeletionEmail(u.getEmail());
+                    } catch (MessagingException e) {
+                        logger.error("Error sending account deletion email: " + e.getMessage(), e);
+                    }
+                });
                 return ResponseEntity.ok("Usuario eliminado exitosamente.");
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
             }
         } catch (Exception e) {
-            // En caso de error, logueamos el error y devolvemos un mensaje de error
-            logger.error("Error al eliminar el usuario con ID " + id + ": " + e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud.");
         }
     }
-
 
         
 

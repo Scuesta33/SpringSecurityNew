@@ -29,4 +29,31 @@ public class EmailController {
             return "Error al enviar el correo de confirmación: " + e.getMessage();
         }
     }
+    @PostMapping("/sendAccountDeletion")
+    public String sendAccountDeletionEmail(@RequestParam String toEmail) {
+        try {
+            emailService.sendAccountDeletionEmail(toEmail);
+            return "Account deletion email successfully sent to " + toEmail;
+        } catch (MessagingException e) {
+            return "Error sending account deletion email: " + e.getMessage();
+        }
+    } 
+    @PostMapping("/sendCredentialUpdate")
+    public String sendCredentialUpdateEmail(@RequestParam String toEmail) {
+        try {
+            emailService.sendCredentialUpdateEmail(toEmail);
+            return "Credential update email successfully sent to " + toEmail;
+        } catch (MessagingException e) {
+            return "Error sending credential update email: " + e.getMessage();
+        }
+    }
+    @PostMapping("/sendRegistration")
+    public String sendRegistrationEmail(@RequestParam String toEmail) {
+        try {
+            emailService.sendRegistrationEmail(toEmail);
+            return "Registration email successfully sent to " + toEmail;
+        } catch (MessagingException e) {
+            return "Error sending registration email: " + e.getMessage();
+        }
+    }
 }
