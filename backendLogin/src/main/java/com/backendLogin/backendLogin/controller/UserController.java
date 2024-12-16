@@ -188,28 +188,35 @@ public ResponseEntity<String> deleteUser() {
 }
 
     
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteUserById(@PathVariable Long id) {
-        try {
+@DeleteMapping("/delete/{id}")
+public ResponseEntity<String> deleteUserById(@PathVariable Long id) {
+    try {
+        // Fetch the user first to send the email
+        Optional<UserSec> user = userService.findById(id);
+
+        if (user.isPresent()) {
+            // User exists, now attempt deletion
             boolean isDeleted = userService.deleteUserById(id);
 
             if (isDeleted) {
-                Optional<UserSec> user = userService.findById(id);
-                user.ifPresent(u -> {
-                    try {
-                        emailService.sendAccountDeletionEmail(u.getEmail());
-                    } catch (MessagingException e) {
-                        logger.error("Error sending account deletion email: " + e.getMessage(), e);
-                    }
-                });
+                // Send email after successful deletion
+                try {
+                    emailService.sendAccountDeletionEmail(user.get().getEmail());
+                } catch (MessagingException e) {
+                    logger.error("Error sending account deletion email: " + e.getMessage(), e);
+                }
                 return ResponseEntity.ok("Usuario eliminado exitosamente.");
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
             }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
         }
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Hubo un error al procesar la solicitud.");
     }
+}
+
 
         
 
