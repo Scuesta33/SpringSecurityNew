@@ -44,4 +44,5 @@ public class EmailService {
             throw new MessagingException("Error al enviar el correo de confirmación", e); // Puedes lanzar la excepción de nuevo si lo deseas
         }
     }
+    
 }
