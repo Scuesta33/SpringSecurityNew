@@ -157,30 +157,37 @@ public ResponseEntity<UserSec> updateUser(@RequestBody UserSecUpdateRequest upda
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 }
+@DeleteMapping("/delete")
+public ResponseEntity<String> deleteUser() {
+    try {
+        // Obtener el nombre de usuario del contexto de seguridad
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteUser() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-
-            boolean isDeleted = userService.deleteByUsername(username);
-
-            if (isDeleted) {
-                Optional<UserSec> user = userService.findByName(username);
-                if (user.isPresent()) {
-                    emailService.sendAccountDeletionEmail(user.get().getEmail());
-                }
-                return ResponseEntity.ok("Usuario eliminado exitosamente.");
-            } else {
-                return ResponseEntity.status(400).body("No se pudo eliminar el usuario.");
-            }
-        } catch (Exception e) {
-            logger.error("Error al eliminar el usuario: " + e.getMessage(), e);
-            return ResponseEntity.status(500).body("Hubo un error al procesar la solicitud.");
+        // Buscar al usuario antes de eliminarlo
+        Optional<UserSec> user = userService.findByName(username);
+        if (!user.isPresent()) {
+            return ResponseEntity.status(400).body("Usuario no encontrado.");
         }
-    }
 
+        // Enviar el correo de eliminación antes de eliminar al usuario
+        emailService.sendAccountDeletionEmail(user.get().getEmail());
+
+        // Llamada al servicio para eliminar al usuario
+        boolean isDeleted = userService.deleteByUsername(username);
+
+        if (isDeleted) {
+            return ResponseEntity.ok("Usuario eliminado exitosamente.");
+        } else {
+            return ResponseEntity.status(400).body("No se pudo eliminar el usuario.");
+        }
+    } catch (Exception e) {
+        logger.error("Error al eliminar el usuario: " + e.getMessage(), e);
+        return ResponseEntity.status(500).body("Hubo un error al procesar la solicitud.");
+    }
+}
+
+    
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteUserById(@PathVariable Long id) {
         try {
