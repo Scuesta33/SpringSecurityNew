@@ -91,7 +91,7 @@ public class EmailService {
             helper.setFrom("scuesta33@gmail.com");
             helper.setTo(toEmail);
             helper.setSubject("Confimación de registro");
-            helper.setText("<h1>Bienvenido a Ticketmaster</h1>" +
+            helper.setText("<h1>Bienvenido a TicketsApp</h1>" +
                     "<p>Tu usuario ha sido registrado exitosamente.</p>", true);
 
             mailSender.send(message);

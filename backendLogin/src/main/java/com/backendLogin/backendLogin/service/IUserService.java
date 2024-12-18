@@ -50,5 +50,7 @@ UserSec updateUser( String newUsername, String newPassword, String newEmail) thr
 UserSec updateUser(String username, String newUsername, String newPassword, String newEmail) throws Exception;
 
 UserSec updateUser(Long id, String username, String password) throws Exception;
+
+UserSec registerOrUpdateOAuthUser(String string, String email, String username);
 }
 

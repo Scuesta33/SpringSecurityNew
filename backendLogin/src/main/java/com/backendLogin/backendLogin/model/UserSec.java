@@ -19,50 +19,55 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity  // Marca la clase como una entidad JPA que será mapeada a una tabla en la base de datos.
-@Table(name = "users")  // Especifica que la clase 'UserSec' se mapea a la tabla 'users' en la base de datos.
-@Getter  // Lombok: Genera automáticamente los métodos getter para todos los campos.
-@Setter  // Lombok: Genera automáticamente los métodos setter para todos los campos.
-@AllArgsConstructor  // Lombok: Genera un constructor con todos los campos como parámetros.
-@NoArgsConstructor   // Lombok: Genera un constructor vacío (sin parámetros).
+@Entity  // Marks the class as a JPA entity, mapped to a database table.
+@Table(name = "users")  // Specifies that this class maps to the 'users' table.
+@Getter  // Lombok: Generates getters automatically for all fields.
+@Setter  // Lombok: Generates setters automatically for all fields.
+@AllArgsConstructor  // Lombok: Generates a constructor with all fields.
+@NoArgsConstructor   // Lombok: Generates an empty constructor (no parameters).
 public class UserSec {
 
-    @Id  // Marca el campo 'id' como la clave primaria de la tabla.
-    @GeneratedValue(strategy = GenerationType.IDENTITY)  // La clave primaria se genera automáticamente (auto-incremento).
-    private Long id;  // El identificador único del usuario (clave primaria).
+    @Id  // Marks the 'id' field as the primary key.
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  // Auto-increment strategy for primary key generation.
+    private Long id;  // The user's unique identifier (primary key).
 
-    private String username;  // El nombre de usuario para autenticación.
+    private String username;  // Username used for authentication.
 
-    private String password;  // La contraseña del usuario, normalmente encriptada.
+    private String password;  // User's password (typically encrypted).
 
-    private boolean enabled;  // Indica si la cuenta del usuario está habilitada (si puede iniciar sesión).
-    
-  
+    private boolean enabled;  // Indicates whether the user's account is enabled.
 
-    private boolean accountNotExpired;  // Indica si la cuenta del usuario ha expirado (por ejemplo, debido a inactividad).
+    private boolean accountNotExpired;  // Indicates whether the user's account has expired.
 
-    private boolean accountNotLocked;  // Indica si la cuenta del usuario está bloqueada.
+    private boolean accountNotLocked;  // Indicates whether the user's account is locked.
 
-    private boolean credentialNotExpired;  // Indica si las credenciales del usuario (como la contraseña) han expirado.
-    
-    @Column(unique = true)
-    private String email;
+    private boolean credentialNotExpired;  // Indicates whether the user's credentials (password) have expired.
 
-    
+    @Column(unique = true)  // Ensures that the email is unique in the database.
+    private String email;  // User's email address.
 
-	// Relación muchos a muchos entre 'UserSec' y 'Role' (un usuario puede tener múltiples roles y un rol puede ser asignado a múltiples usuarios).
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)  // Relación de muchos a muchos.
-    // EAGER carga los roles asociados inmediatamente al obtener un usuario. 
-    // CascadeType.ALL significa que cualquier cambio en el usuario (guardar, eliminar) se reflejará en los roles asociados.
-    @JoinTable(  // Define la tabla intermedia 'user_roles' para gestionar la relación muchos a muchos.
-        name = "user_roles",  // Nombre de la tabla intermedia.
-        joinColumns = @JoinColumn(name = "user_id"),  // Columna en la tabla intermedia que referencia a 'UserSec'.
-        inverseJoinColumns = @JoinColumn(name = "role_id")  // Columna en la tabla intermedia que referencia a 'Role'.
+    // New field to store OAuth provider information (Google, Facebook, etc.)
+    private String provider;  // The OAuth provider (e.g., "google", "facebook").
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)  // Many-to-many relationship with roles.
+    @JoinTable(  // Defines the join table for the many-to-many relationship.
+        name = "user_roles",  // The name of the join table.
+        joinColumns = @JoinColumn(name = "user_id"),  // The column that references the 'UserSec' entity.
+        inverseJoinColumns = @JoinColumn(name = "role_id")  // The column that references the 'Role' entity.
     )
-    private Set<Role> rolesList = new HashSet<>();  // Lista de roles asignados al usuario. Usamos un Set para evitar duplicados.
+    private Set<Role> rolesList = new HashSet<>();  // Set of roles assigned to the user.
 
-    // Métodos getter y setter manuales, aunque Lombok generaría estos automáticamente.
-    
+    // Getter and setter methods for the 'provider' field.
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    // Other getter and setter methods for existing fields.
+
     public Long getId() {
         return id;
     }
@@ -126,12 +131,12 @@ public class UserSec {
     public void setRolesList(Set<Role> rolesList) {
         this.rolesList = rolesList;
     }
+
     public String getEmail() {
-		return email;
-	}
+        return email;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
-

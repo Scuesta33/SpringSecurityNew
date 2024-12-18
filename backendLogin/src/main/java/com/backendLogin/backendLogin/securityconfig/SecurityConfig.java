@@ -1,80 +1,85 @@
 package com.backendLogin.backendLogin.securityconfig;
 
+
+import com.backendLogin.backendLogin.service.UserService;
+import com.backendLogin.backendLogin.utils.JwtUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.backendLogin.backendLogin.securityconfig.filter.JwtTokenValidator;
-import com.backendLogin.backendLogin.utils.JwtUtils;
-
-// Clase de configuración de seguridad
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 public class SecurityConfig implements WebMvcConfigurer {
 
     @Autowired
-    private JwtUtils jwtUtils; // Inyecta el JwtUtils para la validación de JWT
+    private JwtUtils jwtUtils;
 
-    // Configuración de CORS para permitir solicitudes desde el frontend
+    @Autowired
+    private UserService userService;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Habilita CORS para todas las rutas
-                .allowedOrigins("http://localhost:4200", "http://localhost:8080") // Permite solicitudes desde estos orígenes (ajustar según sea necesario)
-                .allowedMethods("GET", "POST", "PUT", "DELETE") // Métodos permitidos
-                .allowedHeaders("*") // Permite todas las cabeceras
-                .allowCredentials(true); // Permite enviar credenciales (cookies, headers de autorización)
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:4200", "http://localhost:8080")
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 
-    // Configuración de los filtros de seguridad
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Desactiva CSRF (usado en APIs sin estado)
-            .sessionManagement(session -> 
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Configura las sesiones como sin estado
-            )
-            .httpBasic(Customizer.withDefaults()) // Permite autenticación básica (si es necesario)
-            .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class); // Añade el filtro para validación JWT
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .oauth2Login(oauth2 -> oauth2
+                .loginPage("/login")
+                .successHandler((request, response, authentication) -> {
+                    OAuth2AuthenticationToken authenticationToken = (OAuth2AuthenticationToken) authentication;
+                    OAuth2User oauth2User = authenticationToken.getPrincipal();
+                    String email = oauth2User.getAttribute("email");
+                    String username = oauth2User.getAttribute("name");
 
-        return http.build(); // Devuelve el filtro de seguridad configurado
+                    userService.registerOrUpdateOAuthUser("google", email, username);
+
+                    response.setStatus(HttpServletResponse.SC_OK);
+                })
+            );
+
+        return http.build();
     }
 
-    // Configuración del AuthenticationManager para la autenticación
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager(); // Devuelve el AuthenticationManager
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
-    // Configura el AuthenticationProvider para autenticar a los usuarios
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(passwordEncoder()); // Establece BCrypt como el codificador de contraseñas
-        provider.setUserDetailsService(userDetailsService); // Asocia el servicio de detalles de usuario
-        return provider; // Devuelve el provider de autenticación
+        provider.setPasswordEncoder(passwordEncoder());
+        provider.setUserDetailsService(userDetailsService);
+        return provider;
     }
 
-    // Define el PasswordEncoder para encriptar las contraseñas usando BCrypt
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Usa BCrypt para la encriptación de contraseñas
+        return new BCryptPasswordEncoder();
     }
 }

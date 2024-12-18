@@ -1,9 +1,10 @@
+
 package com.backendLogin.backendLogin.service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.security.core.Authentication; // correcto
+import org.springframework.security.core.Authentication;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,110 +24,108 @@ import com.backendLogin.backendLogin.model.UserSec;
 import com.backendLogin.backendLogin.repository.IUserRepository;
 import com.backendLogin.backendLogin.utils.JwtUtils;
 
-@Service // Indica que esta clase es un servicio de Spring, un bean gestionado por el contenedor de Spring.
-public class UserDetailsServiceImp implements UserDetailsService {  // Implementa la interfaz UserDetailsService para cargar detalles del usuario.
+@Service
+public class UserDetailsServiceImp implements UserDetailsService {
 
-	@Autowired
-	private IUserRepository userRepo;  // Inyecta el repositorio de usuarios, que se utiliza para acceder a los datos de los usuarios en la base de datos.
-	
-	@Autowired
-	private JwtUtils jwtUtils;  // Inyecta una clase utilitaria para manejar la creación y validación de tokens JWT.
-	
-	@Autowired
-	private PasswordEncoder passwordEncoder;  // Inyecta un codificador de contraseñas para validar las contraseñas.
+    @Autowired
+    private IUserRepository userRepo;
 
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {  // Método que se llama para cargar un usuario basado en el nombre de usuario.
+    @Autowired
+    private JwtUtils jwtUtils;
 
-		// Buscar el usuario en la base de datos por nombre de usuario.
-		UserSec userSec = userRepo.findByUsername(username)
-				.orElseThrow(() -> new UsernameNotFoundException("El usuario " + username + " no fue encontrado"));
-		
-		// Crear una lista de autoridades (permisos y roles).
-		List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-		
-		// Verificar que la lista de roles no sea null ni vacía
-		if (userSec.getRolesList() != null && !userSec.getRolesList().isEmpty()) {
-		    // Iterar sobre los roles y agregar una autoridad por cada uno
-		    userSec.getRolesList().forEach(role -> {
-		        // Verificar que el nombre del rol no sea null ni vacío
-		        if (role.getName() != null && !role.getName().isEmpty()) {
-		            // Añadir el rol como autoridad con el prefijo "ROLE_"
-		            authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName())));
-		        }
-		    });
-		}
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
+    public UserSec registerOAuthUser(String username, String email, String provider) {
+        // Verificar si el usuario ya existe
+        UserSec existingUser = userRepo.findByEmail(email).orElse(null);
 
-		// Traer permisos desde los roles y convertirlos en SimpleGrantedAuthority.
-		// Un "flatMap" se usa para aplanar los roles y los permisos en una única lista.
-		userSec.getRolesList().stream()
-		       .flatMap(role -> role.getPermissionsList().stream())  // Flattens the permissions of each role.
-		       .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getPermissionName())));  // Agregar permiso como autoridad.
+        if (existingUser == null) {
+            // Si el usuario no existe, se crea un nuevo usuario
+            UserSec newUser = new UserSec();
+            newUser.setUsername(username);
+            newUser.setEmail(email);
+            newUser.setProvider(provider);
+            newUser.setEnabled(true);
+            newUser.setPassword(passwordEncoder.encode("tempPassword"));  // Contraseña temporal
 
-		// Crear un objeto User (de Spring Security) a partir del usuario y sus autoridades (roles y permisos).
-		return new User(
-				userSec.getUsername(),  // Nombre de usuario.
-				userSec.getPassword(),  // Contraseña.
-				userSec.isEnabled(),  // Si el usuario está habilitado.
-		        userSec.isAccountNotExpired(),  // Si la cuenta no ha expirado.
-				userSec.isCredentialNotExpired(),  // Si las credenciales no han expirado.
-				userSec.isAccountNotLocked(),  // Si la cuenta no está bloqueada.
-				authorityList  // Lista de autoridades (roles y permisos).
-			);
-	}
+            // Guardar el nuevo usuario
+            userRepo.save(newUser);
 
-	// Método para realizar el login de un usuario.
-	public AuthResponseDTO loginUser(AuthLoginRequestDTO authLoginRequest) {
-	    String username = authLoginRequest.username();
-	    String password = authLoginRequest.password();
-
-	    // Autenticación del usuario
-	    Authentication authentication = this.authenticate(username, password);
-
-	    // Establecer el contexto de seguridad con la autenticación exitosa.
-	    SecurityContextHolder.getContext().setAuthentication(authentication);
-
-	    // Obtener el usuario desde la base de datos usando el username
-	    UserSec userSec = userRepo.findByUsername(username)
-	            .orElseThrow(() -> new UsernameNotFoundException("El usuario " + username + " no fue encontrado"));
-	    
-	    Long userId = userSec.getId();
-	    // Crear un token de acceso JWT basado en la autenticación, incluyendo el id del usuario
-	    String accessToken = jwtUtils.createToken(authentication, userId);  // Modificación aquí
-
-	    // Crear la respuesta incluyendo el id del usuario
-	    AuthResponseDTO authResponseDTO = new AuthResponseDTO(
-	            username, 
-	            "Login successful", 
-	            accessToken, 
-	            true, 
-	            userSec.getId()  // Aquí agregamos el ID del usuario
-	    );
-
-	    return authResponseDTO;
-	}
+            return newUser;
+        } else {
+            // Si ya existe, simplemente retornamos el usuario
+            return existingUser;
+        }
+    }
 
 
-	
-	// Método para autenticar un usuario dado su nombre de usuario y contraseña.
-	public Authentication authenticate(String username, String password) {
-		
-		// Cargar los detalles del usuario desde la base de datos.
-		UserDetails userDetails = this.loadUserByUsername(username);
-		
-		// Si no se encuentra el usuario, lanzar una excepción de credenciales incorrectas.
-		if (userDetails == null) {
-			throw new BadCredentialsException("Invalid username or password");
-		}
-		
-		// Si la contraseña no coincide con la almacenada, lanzar una excepción de credenciales incorrectas.
-		if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-			throw new BadCredentialsException("Invalid username or password");
-		}
-		
-		// Si la autenticación es exitosa, devolver un objeto de autenticación con el nombre de usuario y las autoridades (roles y permisos).
-		return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), userDetails.getAuthorities());
-	}
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserSec userSec = userRepo.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("El usuario " + username + " no fue encontrado"));
+
+        List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
+
+        if (userSec.getRolesList() != null && !userSec.getRolesList().isEmpty()) {
+            userSec.getRolesList().forEach(role -> {
+                if (role.getName() != null && !role.getName().isEmpty()) {
+                    authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName())));
+                }
+            });
+        }
+
+        userSec.getRolesList().stream()
+               .flatMap(role -> role.getPermissionsList().stream())
+               .forEach(permission -> authorityList.add(new SimpleGrantedAuthority(permission.getPermissionName())));
+
+        return new User(
+                userSec.getUsername(),
+                userSec.getPassword(),
+                userSec.isEnabled(),
+                userSec.isAccountNotExpired(),
+                userSec.isCredentialNotExpired(),
+                userSec.isAccountNotLocked(),
+                authorityList
+            );
+    }
+
+    public AuthResponseDTO loginUser(AuthLoginRequestDTO authLoginRequest) {
+        String username = authLoginRequest.username();
+        String password = authLoginRequest.password();
+
+        Authentication authentication = this.authenticate(username, password);
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        UserSec userSec = userRepo.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("El usuario " + username + " no fue encontrado"));
+
+        Long userId = userSec.getId();
+        String accessToken = jwtUtils.createToken(authentication, userId);
+
+        AuthResponseDTO authResponseDTO = new AuthResponseDTO(
+                username, 
+                "Login successful", 
+                accessToken, 
+                true, 
+                userSec.getId()
+        );
+
+        return authResponseDTO;
+    }
+
+    public Authentication authenticate(String username, String password) {
+        UserDetails userDetails = this.loadUserByUsername(username);
+
+        if (userDetails == null) {
+            throw new BadCredentialsException("Invalid username or password");
+        }
+
+        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+            throw new BadCredentialsException("Invalid username or password");
+        }
+
+        return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), userDetails.getAuthorities());
+    }
 }
-
