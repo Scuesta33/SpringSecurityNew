@@ -26,8 +26,8 @@ public class JwtUtils {
     @Value("${security.jwt.user.generator}")
     private String userGenerator; // Nombre del generador del token
 
-    // Método para crear un token JWT a partir de la autenticación del usuario
-    public String createToken(Authentication authentication, Long userId) {
+ // Método para crear un token JWT a partir de la autenticación del usuario
+    public String createToken(Authentication authentication, Long long1) {
         Algorithm algorithm = Algorithm.HMAC256(privateKey); // Algoritmo para firmar el JWT
 
         String username = authentication.getPrincipal().toString(); // Obtener el nombre de usuario
@@ -41,12 +41,14 @@ public class JwtUtils {
             .withIssuer(userGenerator)  // Establecer el emisor del token
             .withSubject(username)  // Establecer el "subject" (nombre de usuario)
             .withClaim("authorities", authorities)  // Añadir los roles/permisos del usuario
-            .withClaim("id", userId)  // Añadir el ID del usuario
+            .withClaim("id", long1)  // Añadir el identificador (ahora es un String)
             .withIssuedAt(new Date())  // Fecha de emisión
             .withExpiresAt(new Date(System.currentTimeMillis() + 1800000))  // Expira en 30 minutos
             .withJWTId(UUID.randomUUID().toString())  // ID único del token
             .sign(algorithm);  // Firmar el token con el algoritmo especificado
     }
+
+
 
     // Método para validar y decodificar un JWT
     public DecodedJWT validateToken(String token) {

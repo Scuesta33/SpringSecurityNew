@@ -178,27 +178,29 @@ public class UserService implements IUserService {
     }
 
     // Registra o actualiza un usuario OAuth2
+
     public UserSec registerOrUpdateOAuthUser(String provider, String email, String username) {
         Optional<UserSec> existingUser = userRepository.findByEmail(email);
 
         if (existingUser.isPresent()) {
-            // Si el usuario existe, actualiza el nombre de usuario (si es necesario)
+            // Si el usuario existe, se actualiza el nombre de usuario si es necesario
             UserSec user = existingUser.get();
             if (!user.getUsername().equals(username)) {
                 user.setUsername(username);
             }
             return userRepository.save(user);
         } else {
-            // Si el usuario no existe, crea uno nuevo
+            // Si no existe, se crea un nuevo usuario
             UserSec newUser = new UserSec();
             newUser.setEmail(email);
             newUser.setUsername(username);
-            newUser.setProvider(provider);
-            newUser.setEnabled(true);
-            newUser.setAccountNotExpired(true);
-            newUser.setAccountNotLocked(true);
-            newUser.setCredentialNotExpired(true);
+            newUser.setProvider(provider);  // En este caso 'google'
+            newUser.setEnabled(true);  // Habilitado
+            newUser.setAccountNotExpired(true);  // No caducada
+            newUser.setAccountNotLocked(true);  // No bloqueada
+            newUser.setCredentialNotExpired(true);  // Credenciales no caducadas
+            newUser.setPassword(passwordEncoder.encode("tempPassword"));  // Contraseña temporal para OAuth
             return userRepository.save(newUser);
         }
     }
-}
+} 

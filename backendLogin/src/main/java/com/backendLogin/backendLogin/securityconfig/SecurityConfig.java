@@ -1,9 +1,11 @@
 package com.backendLogin.backendLogin.securityconfig;
 
-
 import com.backendLogin.backendLogin.service.UserService;
 import com.backendLogin.backendLogin.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletResponse;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,19 +48,38 @@ public class SecurityConfig implements WebMvcConfigurer {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .cors(cors -> cors.configurationSource(request -> {
+                var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                corsConfiguration.setAllowedOrigins(List.of("http://localhost:4200", "http://localhost:8080"));
+                corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+                corsConfiguration.setAllowedHeaders(List.of("*"));
+                corsConfiguration.setAllowCredentials(true);
+                return corsConfiguration;
+            }))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Usamos JWT, por eso no necesitamos estado de sesión
             .oauth2Login(oauth2 -> oauth2
-                .loginPage("/login")
                 .successHandler((request, response, authentication) -> {
                     OAuth2AuthenticationToken authenticationToken = (OAuth2AuthenticationToken) authentication;
                     OAuth2User oauth2User = authenticationToken.getPrincipal();
+
+                    // Obtener los atributos del usuario (de Google en este caso)
                     String email = oauth2User.getAttribute("email");
                     String username = oauth2User.getAttribute("name");
 
-                    userService.registerOrUpdateOAuthUser("google", email, username);
+                    // Registrar o actualizar el usuario en la base de datos
+                    var user = userService.registerOrUpdateOAuthUser("google", email, username);
+                    Long userId = user.getId();
 
-                    response.setStatus(HttpServletResponse.SC_OK);
+                    // Crear el JWT con el ID del usuario
+                    String jwtToken = jwtUtils.createToken(authentication, userId);
+
+                    // Establecer el JWT en la cabecera de la respuesta
+                    response.setHeader("Authorization", "Bearer " + jwtToken);
+
+                    // Redirigir al frontend después de la autenticación exitosa (puedes también enviar el token aquí en un JSON)
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"token\":\"" + jwtToken + "\"}");
+                    response.getWriter().flush();
                 })
             );
 
