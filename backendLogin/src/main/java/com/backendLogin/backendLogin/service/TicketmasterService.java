@@ -2,6 +2,7 @@
 package com.backendLogin.backendLogin.service;
 
 import com.backendLogin.backendLogin.model.TicketmasterEventResponse;
+import com.backendLogin.backendLogin.model.TicketmasterEventResponse.Embedded;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -50,17 +51,17 @@ public class TicketmasterService {
         try {
             TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
-            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
-                    && ticketmasterResponse.getEmbedded().getEvents() != null) {
-                List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterResponse.getEmbedded().getEvents();
+            if (ticketmasterResponse != null && ticketmasterResponse.get_embedded() != null
+                    && ticketmasterResponse.get_embedded().getEvents() != null) {
+                List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterResponse.get_embedded().getEvents();
 
                 for (TicketmasterEventResponse.Embedded.Event event : events) {
                     if (event.getImages() != null && !event.getImages().isEmpty()) {
                         event.setImages(Collections.singletonList(event.getImages().get(0)));
                     }
 
-                    if (event.getVenues() != null && !event.getVenues().isEmpty()) {
-                        TicketmasterEventResponse.Embedded.Event.Venue venue = event.getVenues().get(0);
+                    if (event.get_embedded() != null && event.get_embedded().getVenues() != null && !event.get_embedded().getVenues().isEmpty()) {
+                        Embedded.Venue venue = event.get_embedded().getVenues().get(0);
                         if (venue.getLocation() != null) {
                             Double latitude = venue.getLocation().getLatitude();
                             Double longitude = venue.getLocation().getLongitude();
@@ -101,17 +102,17 @@ public class TicketmasterService {
         try {
             TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
-            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
-                    && ticketmasterResponse.getEmbedded().getEvents() != null) {
-                List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterResponse.getEmbedded().getEvents();
+            if (ticketmasterResponse != null && ticketmasterResponse.get_embedded() != null
+                    && ticketmasterResponse.get_embedded().getEvents() != null) {
+                List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterResponse.get_embedded().getEvents();
 
                 for (TicketmasterEventResponse.Embedded.Event event : events) {
                     if (event.getImages() != null && !event.getImages().isEmpty()) {
                         event.setImages(Collections.singletonList(event.getImages().get(0)));
                     }
 
-                    if (event.getVenues() != null && !event.getVenues().isEmpty()) {
-                        TicketmasterEventResponse.Embedded.Event.Venue venue = event.getVenues().get(0);
+                    if (event.get_embedded() != null && event.get_embedded().getVenues() != null && !event.get_embedded().getVenues().isEmpty()) {
+                        Embedded.Venue venue = event.get_embedded().getVenues().get(0);
                         if (venue.getLocation() != null) {
                             Double latitude = venue.getLocation().getLatitude();
                             Double longitude = venue.getLocation().getLongitude();
@@ -151,17 +152,17 @@ public class TicketmasterService {
         try {
             TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
-            if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
-                    && ticketmasterResponse.getEmbedded().getEvents() != null) {
-                List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterResponse.getEmbedded().getEvents();
+            if (ticketmasterResponse != null && ticketmasterResponse.get_embedded() != null
+                    && ticketmasterResponse.get_embedded().getEvents() != null) {
+                List<TicketmasterEventResponse.Embedded.Event> events = ticketmasterResponse.get_embedded().getEvents();
 
                 for (TicketmasterEventResponse.Embedded.Event event : events) {
                     if (event.getImages() != null && !event.getImages().isEmpty()) {
                         event.setImages(Collections.singletonList(event.getImages().get(0)));
                     }
 
-                    if (event.getVenues() != null && !event.getVenues().isEmpty()) {
-                        TicketmasterEventResponse.Embedded.Event.Venue venue = event.getVenues().get(0);
+                    if (event.get_embedded() != null && event.get_embedded().getVenues() != null && !event.get_embedded().getVenues().isEmpty()) {
+                        Embedded.Venue venue = event.get_embedded().getVenues().get(0);
                         if (venue.getLocation() != null) {
                             Double latitude = venue.getLocation().getLatitude();
                             Double longitude = venue.getLocation().getLongitude();
@@ -193,34 +194,30 @@ public class TicketmasterService {
                 .collect(Collectors.toList());
     }
 
+    public TicketmasterEventResponse.Embedded.Event getEventDetails(String id) {
+        String requestUrl = UriComponentsBuilder.fromHttpUrl(URL + "/" + id)
+                .queryParam("apikey", API_KEY)
+                .toUriString();
 
-public TicketmasterEventResponse.Embedded.Event getEventDetails(String id) {
-    String requestUrl = UriComponentsBuilder.fromHttpUrl(URL + "/" + id)
-            .queryParam("apikey", API_KEY)
-            .toUriString();
+        logger.debug("URL generada para el evento: {}", requestUrl);
 
-    logger.debug("URL generada para el evento: {}", requestUrl);
+        ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
 
-    ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
+        logger.debug("Respuesta cruda de Ticketmaster: {}", response.getBody());
 
-    logger.debug("Respuesta cruda de Ticketmaster: {}", response.getBody());
+        try {
+            TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
-    try {
-        TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
-
-        if (ticketmasterResponse != null && ticketmasterResponse.getEmbedded() != null
-                && ticketmasterResponse.getEmbedded().getEvents() != null && !ticketmasterResponse.getEmbedded().getEvents().isEmpty()) {
-            return ticketmasterResponse.getEmbedded().getEvents().get(0);
-        } else {
-            logger.warn("No se encontró el evento con el ID: {}", id);
+            if (ticketmasterResponse != null && ticketmasterResponse.get_embedded() != null
+                    && ticketmasterResponse.get_embedded().getEvents() != null && !ticketmasterResponse.get_embedded().getEvents().isEmpty()) {
+                return ticketmasterResponse.get_embedded().getEvents().get(0);
+            } else {
+                logger.warn("No se encontró el evento con el ID: {}", id);
+                return null;
+            }
+        } catch (JsonProcessingException e) {
+            logger.error("Error al procesar la respuesta JSON para el evento con ID: {}", id, e);
             return null;
         }
-    } catch (JsonProcessingException e) {
-        logger.error("Error al procesar la respuesta JSON para el evento con ID: {}", id, e);
-        return null;
     }
-}
-
-
-    
 }

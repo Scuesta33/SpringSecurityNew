@@ -1,4 +1,3 @@
-
 package com.backendLogin.backendLogin.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,15 +6,14 @@ import java.util.List;
 public class TicketmasterEventResponse {
 
     @JsonProperty("_embedded")
-    private Embedded embedded;
+    private Embedded _embedded;
 
-    // Getters and Setters
-    public Embedded getEmbedded() {
-        return embedded;
+    public Embedded get_embedded() {
+        return _embedded;
     }
 
-    public void setEmbedded(Embedded embedded) {
-        this.embedded = embedded;
+    public void set_embedded(Embedded _embedded) {
+        this._embedded = _embedded;
     }
 
     public static class Embedded {
@@ -23,7 +21,9 @@ public class TicketmasterEventResponse {
         @JsonProperty("events")
         private List<Event> events;
 
-        // Getters and Setters
+        @JsonProperty("venues")
+        private List<Venue> venues;
+
         public List<Event> getEvents() {
             return events;
         }
@@ -32,8 +32,15 @@ public class TicketmasterEventResponse {
             this.events = events;
         }
 
-        public static class Event {
+        public List<Venue> getVenues() {
+            return venues;
+        }
 
+        public void setVenues(List<Venue> venues) {
+            this.venues = venues;
+        }
+
+        public static class Event {
             @JsonProperty("name")
             private String name;
 
@@ -67,22 +74,16 @@ public class TicketmasterEventResponse {
             @JsonProperty("promoter")
             private Promoter promoter;
 
-            @JsonProperty("promoters")
-            private List<Promoter> promoters;
-
             @JsonProperty("priceRanges")
             private List<PriceRange> priceRanges;
-
-            @JsonProperty("seatmap")
-            private Seatmap seatmap;
 
             @JsonProperty("_links")
             private Links _links;
 
-            @JsonProperty("venues")
-            private List<Venue> venues;
+            @JsonProperty("_embedded")
+            private Embedded _embedded;
 
-            // Getters and Setters
+            // Getters and setters
             public String getName() {
                 return name;
             }
@@ -171,28 +172,12 @@ public class TicketmasterEventResponse {
                 this.promoter = promoter;
             }
 
-            public List<Promoter> getPromoters() {
-                return promoters;
-            }
-
-            public void setPromoters(List<Promoter> promoters) {
-                this.promoters = promoters;
-            }
-
             public List<PriceRange> getPriceRanges() {
                 return priceRanges;
             }
 
             public void setPriceRanges(List<PriceRange> priceRanges) {
                 this.priceRanges = priceRanges;
-            }
-
-            public Seatmap getSeatmap() {
-                return seatmap;
-            }
-
-            public void setSeatmap(Seatmap seatmap) {
-                this.seatmap = seatmap;
             }
 
             public Links get_links() {
@@ -203,97 +188,15 @@ public class TicketmasterEventResponse {
                 this._links = _links;
             }
 
-            public List<Venue> getVenues() {
-                return venues;
+            public Embedded get_embedded() {
+                return _embedded;
             }
 
-            public void setVenues(List<Venue> venues) {
-                this.venues = venues;
+            public void set_embedded(Embedded _embedded) {
+                this._embedded = _embedded;
             }
 
-            public static class Venue {
-                @JsonProperty("name")
-                private String name;
-
-                @JsonProperty("city")
-                private String city;
-
-                @JsonProperty("state")
-                private String state;
-
-                @JsonProperty("country")
-                private String country;
-
-                @JsonProperty("location")
-                private Location location;
-
-                // Getters and Setters
-                public String getName() {
-                    return name;
-                }
-
-                public void setName(String name) {
-                    this.name = name;
-                }
-
-                public String getCity() {
-                    return city;
-                }
-
-                public void setCity(String city) {
-                    this.city = city;
-                }
-
-                public String getState() {
-                    return state;
-                }
-
-                public void setState(String state) {
-                    this.state = state;
-                }
-
-                public String getCountry() {
-                    return country;
-                }
-
-                public void setCountry(String country) {
-                    this.country = country;
-                }
-
-                public Location getLocation() {
-                    return location;
-                }
-
-                public void setLocation(Location location) {
-                    this.location = location;
-                }
-
-                public static class Location {
-                    @JsonProperty("latitude")
-                    private double latitude;
-
-                    @JsonProperty("longitude")
-                    private double longitude;
-
-                    // Getters and Setters
-                    public double getLatitude() {
-                        return latitude;
-                    }
-
-                    public void setLatitude(double latitude) {
-                        this.latitude = latitude;
-                    }
-
-                    public double getLongitude() {
-                        return longitude;
-                    }
-
-                    public void setLongitude(double longitude) {
-                        this.longitude = longitude;
-                    }
-                }
-            }
-
+            // Inner classes for Event
             public static class Image {
                 @JsonProperty("ratio")
                 private String ratio;
@@ -310,7 +213,7 @@ public class TicketmasterEventResponse {
                 @JsonProperty("fallback")
                 private boolean fallback;
 
-                // Getters and Setters
+                // Getters and setters
                 public String getRatio() {
                     return ratio;
                 }
@@ -353,10 +256,9 @@ public class TicketmasterEventResponse {
             }
 
             public static class Sales {
-                @JsonProperty("public")
+                @JsonProperty("publicSale")
                 private PublicSale publicSale;
 
-                // Getters and Setters
                 public PublicSale getPublicSale() {
                     return publicSale;
                 }
@@ -369,38 +271,15 @@ public class TicketmasterEventResponse {
                     @JsonProperty("startDateTime")
                     private String startDateTime;
 
-                    @JsonProperty("startTBD")
-                    private boolean startTBD;
-
-                    @JsonProperty("startTBA")
-                    private boolean startTBA;
-
                     @JsonProperty("endDateTime")
                     private String endDateTime;
 
-                    // Getters and Setters
                     public String getStartDateTime() {
                         return startDateTime;
                     }
 
                     public void setStartDateTime(String startDateTime) {
                         this.startDateTime = startDateTime;
-                    }
-
-                    public boolean isStartTBD() {
-                        return startTBD;
-                    }
-
-                    public void setStartTBD(boolean startTBD) {
-                        this.startTBD = startTBD;
-                    }
-
-                    public boolean isStartTBA() {
-                        return startTBA;
-                    }
-
-                    public void setStartTBA(boolean startTBA) {
-                        this.startTBA = startTBA;
                     }
 
                     public String getEndDateTime() {
@@ -417,46 +296,12 @@ public class TicketmasterEventResponse {
                 @JsonProperty("start")
                 private Start start;
 
-                @JsonProperty("timezone")
-                private String timezone;
-
-                @JsonProperty("status")
-                private Status status;
-
-                @JsonProperty("spanMultipleDays")
-                private boolean spanMultipleDays;
-
-                // Getters and Setters
                 public Start getStart() {
                     return start;
                 }
 
                 public void setStart(Start start) {
                     this.start = start;
-                }
-
-                public String getTimezone() {
-                    return timezone;
-                }
-
-                public void setTimezone(String timezone) {
-                    this.timezone = timezone;
-                }
-
-                public Status getStatus() {
-                    return status;
-                }
-
-                public void setStatus(Status status) {
-                    this.status = status;
-                }
-
-                public boolean isSpanMultipleDays() {
-                    return spanMultipleDays;
-                }
-
-                public void setSpanMultipleDays(boolean spanMultipleDays) {
-                    this.spanMultipleDays = spanMultipleDays;
                 }
 
                 public static class Start {
@@ -469,19 +314,12 @@ public class TicketmasterEventResponse {
                     @JsonProperty("dateTime")
                     private String dateTime;
 
-                    @JsonProperty("dateTBD")
-                    private boolean dateTBD;
+                    @JsonProperty("timezone")
+                    private String timezone;
 
-                    @JsonProperty("dateTBA")
-                    private boolean dateTBA;
+                    @JsonProperty("status")
+                    private Status status;
 
-                    @JsonProperty("timeTBA")
-                    private boolean timeTBA;
-
-                    @JsonProperty("noSpecificTime")
-                    private boolean noSpecificTime;
-
-                    // Getters and Setters
                     public String getLocalDate() {
                         return localDate;
                     }
@@ -506,50 +344,33 @@ public class TicketmasterEventResponse {
                         this.dateTime = dateTime;
                     }
 
-                    public boolean isDateTBD() {
-                        return dateTBD;
+                    public String getTimezone() {
+                        return timezone;
                     }
 
-                    public void setDateTBD(boolean dateTBD) {
-                        this.dateTBD = dateTBD;
+                    public void setTimezone(String timezone) {
+                        this.timezone = timezone;
                     }
 
-                    public boolean isDateTBA() {
-                        return dateTBA;
+                    public Status getStatus() {
+                        return status;
                     }
 
-                    public void setDateTBA(boolean dateTBA) {
-                        this.dateTBA = dateTBA;
+                    public void setStatus(Status status) {
+                        this.status = status;
                     }
 
-                    public boolean isTimeTBA() {
-                        return timeTBA;
-                    }
+                    public static class Status {
+                        @JsonProperty("code")
+                        private String code;
 
-                    public void setTimeTBA(boolean timeTBA) {
-                        this.timeTBA = timeTBA;
-                    }
+                        public String getCode() {
+                            return code;
+                        }
 
-                    public boolean isNoSpecificTime() {
-                        return noSpecificTime;
-                    }
-
-                    public void setNoSpecificTime(boolean noSpecificTime) {
-                        this.noSpecificTime = noSpecificTime;
-                    }
-                }
-
-                public static class Status {
-                    @JsonProperty("code")
-                    private String code;
-
-                    // Getters and Setters
-                    public String getCode() {
-                        return code;
-                    }
-
-                    public void setCode(String code) {
-                        this.code = code;
+                        public void setCode(String code) {
+                            this.code = code;
+                        }
                     }
                 }
             }
@@ -570,7 +391,7 @@ public class TicketmasterEventResponse {
                 @JsonProperty("family")
                 private boolean family;
 
-                // Getters and Setters
+                // Getters and setters
                 public boolean isPrimary() {
                     return primary;
                 }
@@ -611,6 +432,7 @@ public class TicketmasterEventResponse {
                     this.family = family;
                 }
 
+                // Inner classes for Classification
                 public static class Segment {
                     @JsonProperty("id")
                     private String id;
@@ -618,7 +440,6 @@ public class TicketmasterEventResponse {
                     @JsonProperty("name")
                     private String name;
 
-                    // Getters and Setters
                     public String getId() {
                         return id;
                     }
@@ -643,7 +464,6 @@ public class TicketmasterEventResponse {
                     @JsonProperty("name")
                     private String name;
 
-                    // Getters and Setters
                     public String getId() {
                         return id;
                     }
@@ -668,7 +488,6 @@ public class TicketmasterEventResponse {
                     @JsonProperty("name")
                     private String name;
 
-                    // Getters and Setters
                     public String getId() {
                         return id;
                     }
@@ -694,7 +513,7 @@ public class TicketmasterEventResponse {
                 @JsonProperty("name")
                 private String name;
 
-                // Getters and Setters
+                // Getters and setters
                 public String getId() {
                     return id;
                 }
@@ -713,23 +532,14 @@ public class TicketmasterEventResponse {
             }
 
             public static class PriceRange {
-                @JsonProperty("type")
-                private String type;
-
                 @JsonProperty("min")
                 private double min;
 
                 @JsonProperty("max")
                 private double max;
 
-                // Getters and Setters
-                public String getType() {
-                    return type;
-                }
-
-                public void setType(String type) {
-                    this.type = type;
-                }
+                @JsonProperty("currency")
+                private String currency;
 
                 public double getMin() {
                     return min;
@@ -746,19 +556,13 @@ public class TicketmasterEventResponse {
                 public void setMax(double max) {
                     this.max = max;
                 }
-            }
 
-            public static class Seatmap {
-                @JsonProperty("staticUrl")
-                private String staticUrl;
-
-                // Getters and Setters
-                public String getStaticUrl() {
-                    return staticUrl;
+                public String getCurrency() {
+                    return currency;
                 }
 
-                public void setStaticUrl(String staticUrl) {
-                    this.staticUrl = staticUrl;
+                public void setCurrency(String currency) {
+                    this.currency = currency;
                 }
             }
 
@@ -766,7 +570,9 @@ public class TicketmasterEventResponse {
                 @JsonProperty("self")
                 private Link self;
 
-                // Getters and Setters
+                @JsonProperty("next")
+                private Link next;
+
                 public Link getSelf() {
                     return self;
                 }
@@ -775,17 +581,172 @@ public class TicketmasterEventResponse {
                     this.self = self;
                 }
 
+                public Link getNext() {
+                    return next;
+                }
+
+                public void setNext(Link next) {
+                    this.next = next;
+                }
+
                 public static class Link {
                     @JsonProperty("href")
                     private String href;
 
-                    // Getters and Setters
                     public String getHref() {
                         return href;
                     }
 
                     public void setHref(String href) {
+                        this.href = href;
                     }
+                }
+            }
+        }
+
+        public static class Venue {
+            @JsonProperty("name")
+            private String name;
+
+            @JsonProperty("id")
+            private String id;
+
+            @JsonProperty("city")
+            private City city;
+
+            @JsonProperty("state")
+            private State state;
+
+            @JsonProperty("country")
+            private Country country;
+
+            @JsonProperty("location")
+            private Location location;
+
+            // Getters and setters
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
+
+            public String getId() {
+                return id;
+            }
+
+            public void setId(String id) {
+                this.id = id;
+            }
+
+            public City getCity() {
+                return city;
+            }
+
+            public void setCity(City city) {
+                this.city = city;
+            }
+
+            public State getState() {
+                return state;
+            }
+
+            public void setState(State state) {
+                this.state = state;
+            }
+
+            public Country getCountry() {
+                return country;
+            }
+
+            public void setCountry(Country country) {
+                this.country = country;
+            }
+
+            public Location getLocation() {
+                return location;
+            }
+
+            public void setLocation(Location location) {
+                this.location = location;
+            }
+
+            public static class City {
+                @JsonProperty("name")
+                private String name;
+
+                // Getter and setter
+                public String getName() {
+                    return name;
+                }
+
+                public void setName(String name) {
+                    this.name = name;
+                }
+            }
+
+            public static class State {
+                @JsonProperty("name")
+                private String name;
+
+                @JsonProperty("stateCode")
+                private String stateCode;
+
+                // Getter and setter
+                public String getName() {
+                    return name;
+                }
+
+                public void setName(String name) {
+                    this.name = name;
+                }
+
+                public String getStateCode() {
+                    return stateCode;
+                }
+
+                public void setStateCode(String stateCode) {
+                    this.stateCode = stateCode;
+                }
+            }
+
+            public static class Country {
+                @JsonProperty("name")
+                private String name;
+
+                // Getter and setter
+                public String getName() {
+                    return name;
+                }
+
+                public void setName(String name) {
+                    this.name = name;
+                }
+            }
+
+            public static class Location {
+                @JsonProperty("latitude")
+                private double latitude;
+
+                @JsonProperty("longitude")
+                private double longitude;
+
+                // Getters and setters
+                public double getLatitude() {
+                    return latitude;
+                }
+
+                public void setLatitude(double latitude) {
+                    this.latitude = latitude;
+                }
+
+                public double getLongitude() {
+                    return longitude;
+                }
+
+                public void setLongitude(double longitude) {
+                    this.longitude = longitude;
                 }
             }
         }
