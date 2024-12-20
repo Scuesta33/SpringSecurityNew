@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class JwtUtils {
 
     @Value("${security.jwt.private.key}")
-    private String privateKey; // Clave privada para firmar el JWT
+    private String privateKey; // Clave privada para firmar el JWT  
 
     @Value("${security.jwt.user.generator}")
     private String userGenerator; // Nombre del generador del token
