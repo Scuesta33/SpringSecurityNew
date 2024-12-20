@@ -2,6 +2,7 @@ package com.backendLogin.backendLogin.controller;
 
 import com.backendLogin.backendLogin.model.TicketmasterEventResponse;
 import com.backendLogin.backendLogin.service.TicketmasterService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
+
 
 import java.util.List;
 
@@ -59,18 +61,20 @@ public class TicketmasterController {
     	}
     	
     }
- // Endpoint para obtener los detalles de un evento por su ID
-    @GetMapping("/event/{id}") // Cambié eventId por id
+ 
+    @GetMapping("/event/{id}")
     public ResponseEntity<TicketmasterEventResponse.Embedded.Event> getEventDetails(@PathVariable String id) {
-    	TicketmasterEventResponse.Embedded.Event event = ticketmasterService.getEventDetails(id);
+        System.out.println("Recibiendo solicitud para obtener detalles del evento con ID: " + id);
+        
+        TicketmasterEventResponse.Embedded.Event event = ticketmasterService.getEventDetails(id);
 
         if (event == null) {
-            return ResponseEntity.notFound().build();  // 404 Not Found si no se encuentra el evento
+            System.out.println("No se encontró el evento con ID: " + id);
+            return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(event);  // 200 OK con los detalles del evento
+        System.out.println("Detalles del evento encontrados: " + event);
+        
+        return ResponseEntity.ok(event);
     }
-
-
-    
 }

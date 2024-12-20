@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -195,19 +196,22 @@ public class TicketmasterService {
     }
 
     public TicketmasterEventResponse.Embedded.Event getEventDetails(String id) {
-        String requestUrl = UriComponentsBuilder.fromHttpUrl(URL + "/" + id)
+        // Aquí construimos la URL correctamente, asegurándonos de que la base de URL es correcta
+        String requestUrl = UriComponentsBuilder.fromHttpUrl("https://app.ticketmaster.com/discovery/v2/events/" + id + ".json")
                 .queryParam("apikey", API_KEY)
                 .toUriString();
 
         logger.debug("URL generada para el evento: {}", requestUrl);
 
-        ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
-
-        logger.debug("Respuesta cruda de Ticketmaster: {}", response.getBody());
-
         try {
+            // Realizamos la solicitud GET a la API de Ticketmaster
+            ResponseEntity<String> response = restTemplate.exchange(requestUrl, HttpMethod.GET, null, String.class);
+            logger.debug("Respuesta cruda de Ticketmaster: {}", response.getBody());
+
+            // Procesamos la respuesta JSON
             TicketmasterEventResponse ticketmasterResponse = objectMapper.readValue(response.getBody(), TicketmasterEventResponse.class);
 
+            // Validamos que se haya encontrado el evento en la respuesta
             if (ticketmasterResponse != null && ticketmasterResponse.get_embedded() != null
                     && ticketmasterResponse.get_embedded().getEvents() != null && !ticketmasterResponse.get_embedded().getEvents().isEmpty()) {
                 return ticketmasterResponse.get_embedded().getEvents().get(0);
@@ -215,9 +219,14 @@ public class TicketmasterService {
                 logger.warn("No se encontró el evento con el ID: {}", id);
                 return null;
             }
+        } catch (HttpClientErrorException.NotFound e) {
+            logger.error("Evento no encontrado para el ID: {}", id, e);
+            return null;
         } catch (JsonProcessingException e) {
             logger.error("Error al procesar la respuesta JSON para el evento con ID: {}", id, e);
             return null;
         }
     }
+
+
 }
